@@ -4,11 +4,6 @@ using InventoryManagement.Models;
 using InventoryManagement.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace InventoryManagement.Controllers
 {
@@ -65,11 +60,11 @@ namespace InventoryManagement.Controllers
         }
 
         [Authorize]
-        [HttpPost("[action]")]
-        public IActionResult ValidateToken(string token)
+        [HttpGet("[action]")]
+        public IActionResult ValidateToken()
         {
             ServiceResponse res = new ServiceResponse();
-            res.OnSuccess(_jwt.ValidateToken(token));
+            res.OnSuccess(_mapper.Map<UserInfo>(_context.Users.FirstOrDefault(x => x.UserId == _authService.GetUserId())));
             return Ok(res);
         }
     }

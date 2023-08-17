@@ -9,7 +9,7 @@ namespace InventoryManagement.ODataConfig
         public static IEdmModel GetEdmModel()
         {
             ODataConventionModelBuilder builder = new();
-            builder.EntitySet<User>("Users"); 
+            builder.EntitySet<User>("Users");
             return builder.GetEdmModel();
         }
     }

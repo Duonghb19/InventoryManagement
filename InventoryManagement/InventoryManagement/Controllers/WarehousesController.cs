@@ -1,69 +1,60 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using InventoryManagement.Models;
+using InventoryManagement.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using InventoryManagement.Models;
 
 namespace InventoryManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WarehousesController : ControllerBase
+    public class WarehousesController : BaseControllerCustom
     {
         private readonly InventoryManagementContext _context;
 
-        public WarehousesController(InventoryManagementContext context)
+        public WarehousesController(InventoryManagementContext context, IHttpContextAccessor httpContext, IConfiguration configuration, IMapper mapper, IAuthService authService) : base(httpContext, configuration, mapper, authService)
         {
             _context = context;
         }
 
-        // GET: api/Warehouses
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Warehouse>>> GetWarehouses()
+        public async Task<ActionResult<IEnumerable<WarehouseDTO>>> GetWarehouses()
         {
-          if (_context.Warehouses == null)
-          {
-              return NotFound();
-          }
-            return await _context.Warehouses.ToListAsync();
+            if (_context.Warehouses == null)
+            {
+                return NotFound();
+            }
+            return _mapper.Map<List<WarehouseDTO>>(await _context.Warehouses.ToListAsync());
         }
 
-        // GET: api/Warehouses/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Warehouse>> GetWarehouse(int id)
+        public async Task<ActionResult<WarehouseDTO>> GetWarehouse(int id)
         {
-          if (_context.Warehouses == null)
-          {
-              return NotFound();
-          }
+            if (_context.Warehouses == null)
+            {
+                return NotFound();
+            }
             var warehouse = await _context.Warehouses.FindAsync(id);
-
             if (warehouse == null)
             {
                 return NotFound();
             }
-
-            return warehouse;
+            return _mapper.Map<WarehouseDTO>(warehouse);
         }
 
-        // PUT: api/Warehouses/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutWarehouse(int id, Warehouse warehouse)
+        public async Task<IActionResult> PutWarehouse(int id, WarehouseDTO warehouse)
         {
             if (id != warehouse.WarehouseId)
             {
                 return BadRequest();
             }
-
-            _context.Entry(warehouse).State = EntityState.Modified;
-
+            warehouse.ModifiedDate = DateTime.Now;
+            warehouse.ModifiedBy = _authService.GetUserId();
+            _context.Entry(_mapper.Map<Warehouse>(warehouse)).State = EntityState.Modified;
             try
             {
-                await _context.SaveChangesAsync();
+                return Ok(await _context.SaveChangesAsync());
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -76,26 +67,23 @@ namespace InventoryManagement.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
         }
 
-        // POST: api/Warehouses
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Warehouse>> PostWarehouse(Warehouse warehouse)
+        public async Task<ActionResult<Warehouse>> PostWarehouse(WarehouseDTO warehouse)
         {
-          if (_context.Warehouses == null)
-          {
-              return Problem("Entity set 'InventoryManagementContext.Warehouses'  is null.");
-          }
-            _context.Warehouses.Add(warehouse);
+            if (_context.Warehouses == null)
+            {
+                return Problem("Entity set 'InventoryManagementContext.Warehouses'  is null.");
+            }
+            warehouse.ModifiedDate = DateTime.Now;
+            warehouse.ModifiedBy = _authService.GetUserId();
+            _context.Warehouses.Add(_mapper.Map<Warehouse>(warehouse));
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetWarehouse", new { id = warehouse.WarehouseId }, warehouse);
         }
 
-        // DELETE: api/Warehouses/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWarehouse(int id)
         {
@@ -110,9 +98,7 @@ namespace InventoryManagement.Controllers
             }
 
             _context.Warehouses.Remove(warehouse);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(await _context.SaveChangesAsync());
         }
 
         private bool WarehouseExists(int id)

@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using InventoryManagement.Utils;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryManagement.Controllers

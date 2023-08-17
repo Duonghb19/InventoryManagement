@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using InventoryManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using InventoryManagement.Models;
 
 namespace InventoryManagement.Controllers
 {
@@ -24,10 +19,10 @@ namespace InventoryManagement.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<IncomingReceipt>>> GetIncomingReceipts()
         {
-          if (_context.IncomingReceipts == null)
-          {
-              return NotFound();
-          }
+            if (_context.IncomingReceipts == null)
+            {
+                return NotFound();
+            }
             return await _context.IncomingReceipts.ToListAsync();
         }
 
@@ -35,10 +30,10 @@ namespace InventoryManagement.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<IncomingReceipt>> GetIncomingReceipt(int id)
         {
-          if (_context.IncomingReceipts == null)
-          {
-              return NotFound();
-          }
+            if (_context.IncomingReceipts == null)
+            {
+                return NotFound();
+            }
             var incomingReceipt = await _context.IncomingReceipts.FindAsync(id);
 
             if (incomingReceipt == null)
@@ -85,10 +80,10 @@ namespace InventoryManagement.Controllers
         [HttpPost]
         public async Task<ActionResult<IncomingReceipt>> PostIncomingReceipt(IncomingReceipt incomingReceipt)
         {
-          if (_context.IncomingReceipts == null)
-          {
-              return Problem("Entity set 'InventoryManagementContext.IncomingReceipts'  is null.");
-          }
+            if (_context.IncomingReceipts == null)
+            {
+                return Problem("Entity set 'InventoryManagementContext.IncomingReceipts'  is null.");
+            }
             _context.IncomingReceipts.Add(incomingReceipt);
             await _context.SaveChangesAsync();
 

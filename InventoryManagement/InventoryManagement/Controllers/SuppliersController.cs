@@ -1,69 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using InventoryManagement.Models;
+using InventoryManagement.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using InventoryManagement.Models;
 
 namespace InventoryManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SuppliersController : ControllerBase
+    public class SuppliersController : BaseControllerCustom
     {
         private readonly InventoryManagementContext _context;
-
-        public SuppliersController(InventoryManagementContext context)
+        public SuppliersController(InventoryManagementContext context,
+       IHttpContextAccessor httpContext,
+       IConfiguration configuration,
+       IMapper mapper, IAuthService authService) : base(httpContext, configuration, mapper, authService)
         {
             _context = context;
         }
 
-        // GET: api/Suppliers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Supplier>>> GetSuppliers()
+        public async Task<ActionResult<IEnumerable<SupplierDTO>>> GetSuppliers()
         {
-          if (_context.Suppliers == null)
-          {
-              return NotFound();
-          }
-            return await _context.Suppliers.ToListAsync();
+            if (_context.Suppliers == null)
+            {
+                return NotFound();
+            }
+            return _mapper.Map<List<SupplierDTO>>(await _context.Suppliers.ToListAsync());
         }
 
-        // GET: api/Suppliers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Supplier>> GetSupplier(int id)
+        public async Task<ActionResult<SupplierDTO>> GetSupplier(int id)
         {
-          if (_context.Suppliers == null)
-          {
-              return NotFound();
-          }
+            if (_context.Suppliers == null)
+            {
+                return NotFound();
+            }
             var supplier = await _context.Suppliers.FindAsync(id);
 
             if (supplier == null)
             {
                 return NotFound();
             }
-
-            return supplier;
+            return _mapper.Map<SupplierDTO>(supplier);
         }
 
-        // PUT: api/Suppliers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSupplier(int id, Supplier supplier)
+        public async Task<IActionResult> PutSupplier(int id, SupplierDTO supplier)
         {
             if (id != supplier.SupplierId)
             {
                 return BadRequest();
             }
-
-            _context.Entry(supplier).State = EntityState.Modified;
-
+            supplier.ModifiedDate = DateTime.Now;
+            supplier.ModifiedBy = _authService.GetUserId();
+            _context.Entry(_mapper.Map<Supplier>(supplier)).State = EntityState.Modified;
             try
             {
-                await _context.SaveChangesAsync();
+                return Ok(await _context.SaveChangesAsync());
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -76,26 +70,22 @@ namespace InventoryManagement.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
         }
 
-        // POST: api/Suppliers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Supplier>> PostSupplier(Supplier supplier)
+        public async Task<ActionResult<Supplier>> PostSupplier(SupplierDTO supplier)
         {
-          if (_context.Suppliers == null)
-          {
-              return Problem("Entity set 'InventoryManagementContext.Suppliers'  is null.");
-          }
-            _context.Suppliers.Add(supplier);
+            if (_context.Suppliers == null)
+            {
+                return Problem("Entity set 'InventoryManagementContext.Suppliers'  is null.");
+            }
+            supplier.CreatedDate = DateTime.Now;
+            supplier.CreatedBy = _authService.GetUserId();
+            _context.Suppliers.Add(_mapper.Map<Supplier>(supplier));
             await _context.SaveChangesAsync();
-
             return CreatedAtAction("GetSupplier", new { id = supplier.SupplierId }, supplier);
         }
 
-        // DELETE: api/Suppliers/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSupplier(int id)
         {
@@ -108,11 +98,8 @@ namespace InventoryManagement.Controllers
             {
                 return NotFound();
             }
-
             _context.Suppliers.Remove(supplier);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(await _context.SaveChangesAsync());
         }
 
         private bool SupplierExists(int id)

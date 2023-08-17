@@ -1,44 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using InventoryManagement.Models;
+using InventoryManagement.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using InventoryManagement.Models;
 
 namespace InventoryManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CustomersController : ControllerBase
+    public class CustomersController : BaseControllerCustom
     {
         private readonly InventoryManagementContext _context;
 
-        public CustomersController(InventoryManagementContext context)
+        public CustomersController(InventoryManagementContext context,
+        IHttpContextAccessor httpContext,
+        IConfiguration configuration,
+        IMapper mapper, IAuthService authService) : base(httpContext, configuration, mapper, authService)
         {
             _context = context;
         }
 
-        // GET: api/Customers
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
+        public async Task<ActionResult<IEnumerable<CustomerDTO>>> GetCustomers()
         {
-          if (_context.Customers == null)
-          {
-              return NotFound();
-          }
-            return await _context.Customers.ToListAsync();
+            if (_context.Customers == null)
+            {
+                return NotFound();
+            }
+            return _mapper.Map<List<CustomerDTO>>(await _context.Customers.ToListAsync());
         }
 
-        // GET: api/Customers/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Customer>> GetCustomer(int id)
+        public async Task<ActionResult<CustomerDTO>> GetCustomer(int id)
         {
-          if (_context.Customers == null)
-          {
-              return NotFound();
-          }
+            if (_context.Customers == null)
+            {
+                return NotFound();
+            }
             var customer = await _context.Customers.FindAsync(id);
 
             if (customer == null)
@@ -46,24 +44,22 @@ namespace InventoryManagement.Controllers
                 return NotFound();
             }
 
-            return customer;
+            return _mapper.Map<CustomerDTO>(customer);
         }
 
-        // PUT: api/Customers/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCustomer(int id, Customer customer)
+        public async Task<IActionResult> PutCustomer(int id, CustomerDTO customer)
         {
             if (id != customer.CustomerId)
             {
                 return BadRequest();
             }
-
-            _context.Entry(customer).State = EntityState.Modified;
-
+            customer.ModifiedDate = DateTime.Now;
+            customer.ModifiedBy = _authService.GetUserId();
+            _context.Entry(_mapper.Map<Customer>(customer)).State = EntityState.Modified;
             try
             {
-                await _context.SaveChangesAsync();
+                return Ok(await _context.SaveChangesAsync());
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -77,25 +73,22 @@ namespace InventoryManagement.Controllers
                 }
             }
 
-            return NoContent();
         }
 
-        // POST: api/Customers
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Customer>> PostCustomer(Customer customer)
+        public async Task<ActionResult<CustomerDTO>> PostCustomer(CustomerDTO customer)
         {
-          if (_context.Customers == null)
-          {
-              return Problem("Entity set 'InventoryManagementContext.Customers'  is null.");
-          }
-            _context.Customers.Add(customer);
+            if (_context.Customers == null)
+            {
+                return Problem("Entity set 'InventoryManagementContext.Customers'  is null.");
+            }
+            customer.CreatedDate = DateTime.Now;
+            customer.CreatedBy = _authService.GetUserId();
+            _context.Customers.Add(_mapper.Map<Customer>(customer));
             await _context.SaveChangesAsync();
-
             return CreatedAtAction("GetCustomer", new { id = customer.CustomerId }, customer);
         }
 
-        // DELETE: api/Customers/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCustomer(int id)
         {
@@ -108,11 +101,8 @@ namespace InventoryManagement.Controllers
             {
                 return NotFound();
             }
-
             _context.Customers.Remove(customer);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(await _context.SaveChangesAsync());
         }
 
         private bool CustomerExists(int id)

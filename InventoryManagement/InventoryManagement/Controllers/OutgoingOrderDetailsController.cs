@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using InventoryManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using InventoryManagement.Models;
 
 namespace InventoryManagement.Controllers
 {
@@ -24,10 +19,10 @@ namespace InventoryManagement.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OutgoingOrderDetail>>> GetOutgoingOrderDetails()
         {
-          if (_context.OutgoingOrderDetails == null)
-          {
-              return NotFound();
-          }
+            if (_context.OutgoingOrderDetails == null)
+            {
+                return NotFound();
+            }
             return await _context.OutgoingOrderDetails.ToListAsync();
         }
 
@@ -35,10 +30,10 @@ namespace InventoryManagement.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<OutgoingOrderDetail>> GetOutgoingOrderDetail(int id)
         {
-          if (_context.OutgoingOrderDetails == null)
-          {
-              return NotFound();
-          }
+            if (_context.OutgoingOrderDetails == null)
+            {
+                return NotFound();
+            }
             var outgoingOrderDetail = await _context.OutgoingOrderDetails.FindAsync(id);
 
             if (outgoingOrderDetail == null)
@@ -85,10 +80,10 @@ namespace InventoryManagement.Controllers
         [HttpPost]
         public async Task<ActionResult<OutgoingOrderDetail>> PostOutgoingOrderDetail(OutgoingOrderDetail outgoingOrderDetail)
         {
-          if (_context.OutgoingOrderDetails == null)
-          {
-              return Problem("Entity set 'InventoryManagementContext.OutgoingOrderDetails'  is null.");
-          }
+            if (_context.OutgoingOrderDetails == null)
+            {
+                return Problem("Entity set 'InventoryManagementContext.OutgoingOrderDetails'  is null.");
+            }
             _context.OutgoingOrderDetails.Add(outgoingOrderDetail);
             await _context.SaveChangesAsync();
 

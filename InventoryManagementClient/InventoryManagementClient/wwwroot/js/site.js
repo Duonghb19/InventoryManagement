@@ -1,4 +1,19 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿$(function () {
+    //Back to top
+    $('body').append('<div id="toTop" class="btn orange darken-4 text-white">TOP</div>');
+    $(window).scroll(function () {
+        if ($(this).scrollTop() != 0) {
+            $('#toTop').fadeIn();
+        } else {
+            $('#toTop').fadeOut();
+        }
+    });
 
-// Write your JavaScript code.
+    $('#toTop').click(function () {
+        $("html, body").animate({ scrollTop: 0 }, 600);
+        return false;
+    });
+});
+
+// Animations initialization
+new WOW().init();

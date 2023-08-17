@@ -1,5 +1,4 @@
 -- Tạo cơ sở dữ liệu
-
 CREATE DATABASE InventoryManagement;
 GO
 -- Sử dụng cơ sở dữ liệu
@@ -9,53 +8,63 @@ GO
 -- Bảng cho khách hàng
 CREATE TABLE Customers (
   CustomerID INT PRIMARY KEY IDENTITY(1,1)
- ,CustomerName VARCHAR(255)
- ,ContactPerson VARCHAR(255)
- ,ContactEmail VARCHAR(255)
- ,ContactPhone VARCHAR(20)
+ ,CustomerName NVARCHAR(255)
+ ,ContactPerson NVARCHAR(255)
+ ,ContactEmail NVARCHAR(255)
+ ,ContactPhone NVARCHAR(20)
  ,CreatedDate DATETIME
+ ,CreatedBy int
  ,ModifiedDate DATETIME
+ ,ModifiedBy int
 );
 GO
 -- Bảng cho nhà cung cấp
 CREATE TABLE Suppliers (
   SupplierID INT PRIMARY KEY IDENTITY(1,1)
- ,SupplierName VARCHAR(255)
- ,ContactPerson VARCHAR(255)
- ,ContactEmail VARCHAR(255)
- ,ContactPhone VARCHAR(20)
+ ,SupplierName NVARCHAR(255)
+ ,ContactPerson NVARCHAR(255)
+ ,ContactEmail NVARCHAR(255)
+ ,ContactPhone NVARCHAR(20)
  ,CreatedDate DATETIME
+ ,CreatedBy int
  ,ModifiedDate DATETIME
+ ,ModifiedBy int
 );
 GO
 -- Bảng cho thể loại vật tư hàng hóa
 CREATE TABLE Categories (
   CategoryID INT PRIMARY KEY IDENTITY(1,1)
- ,CategoryName VARCHAR(255)
+ ,CategoryName NVARCHAR(255)
  ,CreatedDate DATETIME
+ ,CreatedBy int
  ,ModifiedDate DATETIME
+ ,ModifiedBy int
 );
 GO
 -- Bảng cho kho
 CREATE TABLE Warehouses (
   WarehouseID INT PRIMARY KEY IDENTITY(1,1)
- ,WarehouseName VARCHAR(255)
- ,Location VARCHAR(255)
+ ,WarehouseName NVARCHAR(255)
+ ,Location NVARCHAR(255)
  ,CreatedDate DATETIME
+ ,CreatedBy int
  ,ModifiedDate DATETIME
+ ,ModifiedBy int
 );
 GO
 -- Bảng cho vật tư hàng hóa
 CREATE TABLE Products (
   ProductID INT PRIMARY KEY IDENTITY(1,1)
- ,ProductName VARCHAR(255)
+ ,ProductName NVARCHAR(255)
  ,CategoryID INT
  ,QuantityInStock INT
  ,PurchasePrice DECIMAL(10, 2)
  ,SalePrice DECIMAL(10, 2)
  ,WarehouseID INT
  ,CreatedDate DATETIME
+ ,CreatedBy int
  ,ModifiedDate DATETIME
+ ,ModifiedBy int
  ,FOREIGN KEY (CategoryID) REFERENCES Categories (CategoryID)
  ,FOREIGN KEY (WarehouseID) REFERENCES Warehouses (WarehouseID)
 );
@@ -68,7 +77,9 @@ CREATE TABLE IncomingReceipts (
  ,SupplierID INT
  ,WarehouseID INT
  ,CreatedDate DATETIME
+ ,CreatedBy int
  ,ModifiedDate DATETIME
+ ,ModifiedBy int
  ,FOREIGN KEY (SupplierID) REFERENCES Suppliers (SupplierID)
  ,FOREIGN KEY (WarehouseID) REFERENCES Warehouses (WarehouseID)
 );
@@ -82,7 +93,9 @@ CREATE TABLE IncomingReceiptDetails (
  ,PurchasePrice DECIMAL(10, 2)
  ,WarehouseID INT
  ,CreatedDate DATETIME
+ ,CreatedBy int
  ,ModifiedDate DATETIME
+ ,ModifiedBy int
  ,FOREIGN KEY (ReceiptID) REFERENCES IncomingReceipts (ReceiptID)
  ,FOREIGN KEY (ProductID) REFERENCES Products (ProductID)
  ,FOREIGN KEY (WarehouseID) REFERENCES Warehouses (WarehouseID)
@@ -96,7 +109,9 @@ CREATE TABLE OutgoingOrders (
  ,CustomerID INT
  ,WarehouseID INT
  ,CreatedDate DATETIME
+ ,CreatedBy int
  ,ModifiedDate DATETIME
+ ,ModifiedBy int
  ,FOREIGN KEY (CustomerID) REFERENCES Customers (CustomerID)
  ,FOREIGN KEY (WarehouseID) REFERENCES Warehouses (WarehouseID)
 );
@@ -110,7 +125,9 @@ CREATE TABLE OutgoingOrderDetails (
  ,SalePrice DECIMAL(10, 2)
  ,WarehouseID INT
  ,CreatedDate DATETIME
+ ,CreatedBy int
  ,ModifiedDate DATETIME
+ ,ModifiedBy int
  ,FOREIGN KEY (OrderID) REFERENCES OutgoingOrders (OrderID)
  ,FOREIGN KEY (ProductID) REFERENCES Products (ProductID)
  ,FOREIGN KEY (WarehouseID) REFERENCES Warehouses (WarehouseID)
@@ -118,9 +135,17 @@ CREATE TABLE OutgoingOrderDetails (
 GO
 CREATE TABLE Users (
   UserId INT PRIMARY KEY IDENTITY(1,1)
- ,Username VARCHAR(50)
- ,Password VARCHAR(100)
- ,Role VARCHAR(50)
+ ,Username NVARCHAR(50)
+ ,Password NVARCHAR(100)
+ ,Role NVARCHAR(50)
  ,CreatedDate DATETIME
+ ,CreatedBy int
  ,ModifiedDate DATETIME
+ ,ModifiedBy int
 );
+
+
+INSERT into Users (Username, Password, Role, CreatedDate, ModifiedDate)
+  VALUES ('admin', '$2a$11$A4UTHKWIR53tWqhSu9UKMOJqyyyuADsl9wfnH8vNLcokRDGn4gpL6', '', GETDATE(), GETDATE());
+
+select * from Users u

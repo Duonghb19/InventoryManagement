@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using InventoryManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using InventoryManagement.Models;
 
 namespace InventoryManagement.Controllers
 {
@@ -24,10 +19,10 @@ namespace InventoryManagement.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<IncomingReceiptDetail>>> GetIncomingReceiptDetails()
         {
-          if (_context.IncomingReceiptDetails == null)
-          {
-              return NotFound();
-          }
+            if (_context.IncomingReceiptDetails == null)
+            {
+                return NotFound();
+            }
             return await _context.IncomingReceiptDetails.ToListAsync();
         }
 
@@ -35,10 +30,10 @@ namespace InventoryManagement.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<IncomingReceiptDetail>> GetIncomingReceiptDetail(int id)
         {
-          if (_context.IncomingReceiptDetails == null)
-          {
-              return NotFound();
-          }
+            if (_context.IncomingReceiptDetails == null)
+            {
+                return NotFound();
+            }
             var incomingReceiptDetail = await _context.IncomingReceiptDetails.FindAsync(id);
 
             if (incomingReceiptDetail == null)
@@ -85,10 +80,10 @@ namespace InventoryManagement.Controllers
         [HttpPost]
         public async Task<ActionResult<IncomingReceiptDetail>> PostIncomingReceiptDetail(IncomingReceiptDetail incomingReceiptDetail)
         {
-          if (_context.IncomingReceiptDetails == null)
-          {
-              return Problem("Entity set 'InventoryManagementContext.IncomingReceiptDetails'  is null.");
-          }
+            if (_context.IncomingReceiptDetails == null)
+            {
+                return Problem("Entity set 'InventoryManagementContext.IncomingReceiptDetails'  is null.");
+            }
             _context.IncomingReceiptDetails.Add(incomingReceiptDetail);
             await _context.SaveChangesAsync();
 

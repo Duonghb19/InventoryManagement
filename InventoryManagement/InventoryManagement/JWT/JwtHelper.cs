@@ -1,6 +1,6 @@
 ﻿using InventoryManagement.Models;
-using Newtonsoft.Json;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;

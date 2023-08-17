@@ -1,69 +1,79 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using InventoryManagement.Models;
+using InventoryManagement.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using InventoryManagement.Models;
 
 namespace InventoryManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoriesController : ControllerBase
+    public class CategoriesController : BaseControllerCustom
     {
         private readonly InventoryManagementContext _context;
-
-        public CategoriesController(InventoryManagementContext context)
+        public CategoriesController(InventoryManagementContext context,
+        IHttpContextAccessor httpContext,
+        IConfiguration configuration,
+        IMapper mapper, IAuthService authService) : base(httpContext, configuration, mapper, authService)
         {
             _context = context;
         }
 
-        // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategories()
         {
-          if (_context.Categories == null)
-          {
-              return NotFound();
-          }
-            return await _context.Categories.ToListAsync();
+            if (_context.Categories == null)
+            {
+                return NotFound();
+            }
+            return _mapper.Map<List<CategoryDTO>>(await _context.Categories.ToListAsync());
         }
 
-        // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
+        public async Task<ActionResult<CategoryDTO>> GetCategory(int id)
         {
-          if (_context.Categories == null)
-          {
-              return NotFound();
-          }
+            if (_context.Categories == null)
+            {
+                return NotFound();
+            }
             var category = await _context.Categories.FindAsync(id);
 
             if (category == null)
             {
                 return NotFound();
             }
-
-            return category;
+            return _mapper.Map<CategoryDTO>(category);
         }
 
-        // PUT: api/Categories/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [HttpPost]
+        public async Task<ActionResult<Category>> PostCategory(CategoryDTO category)
+        {
+            if (_context.Categories == null)
+            {
+                return Problem("Entity set 'InventoryManagementContext.Categories'  is null.");
+            }
+            category.CreatedDate = DateTime.Now;
+            category.CreatedBy = _authService.GetUserId();
+            _context.Categories.Add(_mapper.Map<Category>(category));
+            await _context.SaveChangesAsync();
+            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+        }
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
+        public async Task<IActionResult> PutCategory(int id, CategoryDTO category)
         {
             if (id != category.CategoryId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(category).State = EntityState.Modified;
+            category.ModifiedDate = DateTime.Now;
+            category.ModifiedBy = _authService.GetUserId();
+            _context.Entry(_mapper.Map<Category>(category)).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                return Ok(await _context.SaveChangesAsync());
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -76,43 +86,29 @@ namespace InventoryManagement.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
         }
 
-        // POST: api/Categories
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
-        {
-          if (_context.Categories == null)
-          {
-              return Problem("Entity set 'InventoryManagementContext.Categories'  is null.");
-          }
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
-        }
-
-        // DELETE: api/Categories/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            if (_context.Categories == null)
+            try
             {
-                return NotFound();
+                if (_context.Categories == null)
+                {
+                    return NotFound();
+                }
+                var category = await _context.Categories.FindAsync(id);
+                if (category == null)
+                {
+                    return NotFound();
+                }
+                _context.Categories.Remove(category);
+                return Ok(await _context.SaveChangesAsync());
             }
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                return Problem(ex.Message);
             }
-
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
         }
 
         private bool CategoryExists(int id)

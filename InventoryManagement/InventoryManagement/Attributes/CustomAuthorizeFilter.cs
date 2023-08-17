@@ -1,7 +1,6 @@
 ﻿using InventoryManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System.Data;
 using System.Net;
 using System.Security.Claims;
 

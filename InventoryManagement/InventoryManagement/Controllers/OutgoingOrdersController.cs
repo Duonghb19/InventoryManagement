@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using InventoryManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using InventoryManagement.Models;
 
 namespace InventoryManagement.Controllers
 {
@@ -24,10 +19,10 @@ namespace InventoryManagement.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OutgoingOrder>>> GetOutgoingOrders()
         {
-          if (_context.OutgoingOrders == null)
-          {
-              return NotFound();
-          }
+            if (_context.OutgoingOrders == null)
+            {
+                return NotFound();
+            }
             return await _context.OutgoingOrders.ToListAsync();
         }
 
@@ -35,10 +30,10 @@ namespace InventoryManagement.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<OutgoingOrder>> GetOutgoingOrder(int id)
         {
-          if (_context.OutgoingOrders == null)
-          {
-              return NotFound();
-          }
+            if (_context.OutgoingOrders == null)
+            {
+                return NotFound();
+            }
             var outgoingOrder = await _context.OutgoingOrders.FindAsync(id);
 
             if (outgoingOrder == null)
@@ -85,10 +80,10 @@ namespace InventoryManagement.Controllers
         [HttpPost]
         public async Task<ActionResult<OutgoingOrder>> PostOutgoingOrder(OutgoingOrder outgoingOrder)
         {
-          if (_context.OutgoingOrders == null)
-          {
-              return Problem("Entity set 'InventoryManagementContext.OutgoingOrders'  is null.");
-          }
+            if (_context.OutgoingOrders == null)
+            {
+                return Problem("Entity set 'InventoryManagementContext.OutgoingOrders'  is null.");
+            }
             _context.OutgoingOrders.Add(outgoingOrder);
             await _context.SaveChangesAsync();
 

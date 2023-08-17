@@ -42,9 +42,7 @@ namespace InventoryManagement.Models
             {
                 entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
 
-                entity.Property(e => e.CategoryName)
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                entity.Property(e => e.CategoryName).HasMaxLength(255);
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
@@ -55,23 +53,15 @@ namespace InventoryManagement.Models
             {
                 entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
 
-                entity.Property(e => e.ContactEmail)
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                entity.Property(e => e.ContactEmail).HasMaxLength(255);
 
-                entity.Property(e => e.ContactPerson)
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                entity.Property(e => e.ContactPerson).HasMaxLength(255);
 
-                entity.Property(e => e.ContactPhone)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.ContactPhone).HasMaxLength(20);
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.CustomerName)
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                entity.Property(e => e.CustomerName).HasMaxLength(255);
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
             });
@@ -79,7 +69,7 @@ namespace InventoryManagement.Models
             modelBuilder.Entity<IncomingReceipt>(entity =>
             {
                 entity.HasKey(e => e.ReceiptId)
-                    .HasName("PK__Incoming__CC08C4001E1299B9");
+                    .HasName("PK__Incoming__CC08C400793F8F3F");
 
                 entity.Property(e => e.ReceiptId).HasColumnName("ReceiptID");
 
@@ -109,7 +99,7 @@ namespace InventoryManagement.Models
             modelBuilder.Entity<IncomingReceiptDetail>(entity =>
             {
                 entity.HasKey(e => e.DetailId)
-                    .HasName("PK__Incoming__135C314DFCB2CB6A");
+                    .HasName("PK__Incoming__135C314D8209DB5E");
 
                 entity.Property(e => e.DetailId).HasColumnName("DetailID");
 
@@ -144,7 +134,7 @@ namespace InventoryManagement.Models
             modelBuilder.Entity<OutgoingOrder>(entity =>
             {
                 entity.HasKey(e => e.OrderId)
-                    .HasName("PK__Outgoing__C3905BAF867F7C9E");
+                    .HasName("PK__Outgoing__C3905BAF7BC29181");
 
                 entity.Property(e => e.OrderId).HasColumnName("OrderID");
 
@@ -174,7 +164,7 @@ namespace InventoryManagement.Models
             modelBuilder.Entity<OutgoingOrderDetail>(entity =>
             {
                 entity.HasKey(e => e.DetailId)
-                    .HasName("PK__Outgoing__135C314DFE5B21F2");
+                    .HasName("PK__Outgoing__135C314D2262D771");
 
                 entity.Property(e => e.DetailId).HasColumnName("DetailID");
 
@@ -216,9 +206,7 @@ namespace InventoryManagement.Models
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.ProductName)
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                entity.Property(e => e.ProductName).HasMaxLength(255);
 
                 entity.Property(e => e.PurchasePrice).HasColumnType("decimal(10, 2)");
 
@@ -241,25 +229,17 @@ namespace InventoryManagement.Models
             {
                 entity.Property(e => e.SupplierId).HasColumnName("SupplierID");
 
-                entity.Property(e => e.ContactEmail)
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                entity.Property(e => e.ContactEmail).HasMaxLength(255);
 
-                entity.Property(e => e.ContactPerson)
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                entity.Property(e => e.ContactPerson).HasMaxLength(255);
 
-                entity.Property(e => e.ContactPhone)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.ContactPhone).HasMaxLength(20);
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.SupplierName)
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                entity.Property(e => e.SupplierName).HasMaxLength(255);
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -268,17 +248,11 @@ namespace InventoryManagement.Models
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Password)
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
+                entity.Property(e => e.Password).HasMaxLength(100);
 
-                entity.Property(e => e.Role)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.Role).HasMaxLength(50);
 
-                entity.Property(e => e.Username)
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
+                entity.Property(e => e.Username).HasMaxLength(50);
             });
 
             modelBuilder.Entity<Warehouse>(entity =>
@@ -287,15 +261,11 @@ namespace InventoryManagement.Models
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Location)
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                entity.Property(e => e.Location).HasMaxLength(255);
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.WarehouseName)
-                    .HasMaxLength(255)
-                    .IsUnicode(false);
+                entity.Property(e => e.WarehouseName).HasMaxLength(255);
             });
 
             OnModelCreatingPartial(modelBuilder);
