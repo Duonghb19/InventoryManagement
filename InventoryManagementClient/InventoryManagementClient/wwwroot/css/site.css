@@ -1,69 +1,87 @@
 body {
-    background-color: #eef5f9
+  background-color: #eef5f9;
+  height: 100vh;
 }
-#app{
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
 }
-.navbar{
-    height: 54px;
+.navbar {
+  height: 54px;
 }
 .page-footer {
-    height: 54px;
+  height: 54px;
 }
-.main{
-    flex: 1;
+.main {
+  flex: 1;
 }
 #toTop {
-    bottom: 10px;
-    cursor: pointer;
-    display: none;
-    position: fixed;
-    right: 10px;
+  bottom: 10px;
+  cursor: pointer;
+  display: none;
+  position: fixed;
+  right: 10px;
 }
 
 a.navbar-brand {
-    font-weight: bold;
-    font-size: 1.5rem
+  font-weight: bold;
+  font-size: 1.5rem;
 }
 
 a.navbar-brand span {
-    color: #fb5952
+  color: #fb5952;
 }
 
 /* validation helpers */
 .field-validation-error {
-    color: #ee2420;
-    font-size: .85rem;
+  color: #ee2420;
+  font-size: 0.85rem;
 }
 
 .field-validation-valid {
-    display: none;
+  display: none;
 }
 
 input.input-validation-error {
-    border: 1px solid #b94a48;
+  border: 1px solid #b94a48;
 }
 
 input[type="checkbox"].input-validation-error {
-    border: 0 none;
+  border: 0 none;
 }
 
-
 .validation-summary-valid {
-    display: none;
+  display: none;
 }
 
 .validation-summary-errors {
-    color: #b94a48;
+  color: #b94a48;
 }
 
 .validation-summary-errors ul {
-    margin: 0;
-    padding: 0
+  margin: 0;
+  padding: 0;
 }
 
 .validation-summary-errors ul li {
-    list-style: none
+  list-style: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

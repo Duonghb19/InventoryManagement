@@ -14,7 +14,7 @@ namespace InventoryManagementClient.Middleware
     {
         private readonly RequestDelegate _next;
         protected readonly HttpClient _httpClient;
-        public AuthHandlerMiddleware(RequestDelegate next, IHttpClientFactory httpClientFactory, IHttpContextAccessor httpContextAccessor)
+        public AuthHandlerMiddleware(RequestDelegate next, IHttpClientFactory httpClientFactory)
         {
             _next = next;
             _httpClient = httpClientFactory.CreateClient();
@@ -29,7 +29,6 @@ namespace InventoryManagementClient.Middleware
                 var token = context.Request.Cookies["InventoryManagement-AccessToken"];
                 if (token != null)
                 {
-                    context.Items["AccessToken"] = token;
                     var user = context.Session.GetString("InventoryManagement-User");
                     if (user == null)
                     {
@@ -57,6 +56,8 @@ namespace InventoryManagementClient.Middleware
                     {
                         context.Items["UserInfo"] = JsonConvert.DeserializeObject<UserInfo>(user);
                     }
+                    context.Items["AccessToken"] = token;
+                    context.Items["APIService"] = "https://localhost:7161/api/";
                 }
             }
             catch (Exception)

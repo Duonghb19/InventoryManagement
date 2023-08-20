@@ -1,4 +1,5 @@
-﻿using InventoryManagementClient.Models;
+﻿using InventoryManagementClient.Attributes;
+using InventoryManagementClient.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -67,6 +68,50 @@ namespace InventoryManagementClient.Controllers
                 return RedirectToAction("Index", "Error", new { errorCode = 500 });
             }
             return View();
+        }
+
+        [HttpGet]
+        [RoleCheck("all")]
+        public async Task<ActionResult> ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [RoleCheck("all")]
+        public async Task<ActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+            var response = await _httpClient.PutAsJsonAsync("users/changepassword", model);
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError("OldPassword", "Wrong old password.");
+                return View(model);
+            }
+
+            return RedirectToAction("ChangePassword", "Account", new { Message = "Change password successfully." });
+        }
+
+        [HttpGet]
+        [RoleCheck("all")]
+        public ActionResult Profile()
+        {
+            return View();
+        }
+
+
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("InventoryManagement-AccessToken");
+            HttpContext.Session.Remove("InventoryManagement-User");
+            return RedirectToAction("Login", "Account");
+        }
+
+        [HttpPost]
+        public IActionResult RefreshToken()
+        {
+            HttpContext.Session.Remove("InventoryManagement-User");
+            return Ok();
         }
     }
 }

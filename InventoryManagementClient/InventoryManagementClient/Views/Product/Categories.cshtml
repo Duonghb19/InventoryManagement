@@ -1,0 +1,238 @@
+﻿@{
+ViewBag.Title = "Product Categories";
+Layout = "_AdminLayout";
+}
+<div class=" m-md-3">
+    <div class="row">
+        <div class="col justify-content-center align-self-center">
+            <h4 class="page-header">Categories List</h4>
+        </div>
+        <div class="col text-right">
+            <span id="addNewCategories" class="btn-floating peach-gradient" title="Add New" data-toggle="tooltip">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
+
+    <div class="card card-body">
+        <table id="data-table" class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Category Name</th>
+                    <th style="width:50px">Edit</th>
+                    <th style="width:50px">Delete</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(function () {
+        dataTable.getData();
+    });
+    var dataTable = {
+        table: null,
+        init: function () {
+            dataTable.table = $("#data-table").DataTable({
+                processing: true,
+                serverSide: true,
+                scrollCollapse: true,
+                scrollY: "calc(100vh - 400px)",
+                ajax: {
+                    url: `${userInfo.apiUrl}Categories/GetCategories`,
+                    type: "POST"
+                },
+                columns: [
+                    {
+                        data: "CategoryName",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-left">${row.categoryName}</span>`;
+                        }
+                    },
+                    {
+                        data: "categoryId",
+                        render: function (data, type, row, meta) {
+                            return `<a class="btn-floating btn-sm btn-blue" onclick="editCategory(${row.categoryId})" title="Edit" data-toggle="tooltip">
+                                        <i class="fa fa-pencil" aria-hidden="true"></i>
+                                    </a>`;
+                        }
+                    },
+                    {
+                        data: "categoryId",
+                        render: function (data, type, row, meta) {
+                            return `<span class="btn-floating btn-sm btn-danger" title="Delete" data-toggle="tooltip" onclick="deleteCategory(${row.categoryId})">
+                                        <i class="fa fa-trash" aria-hidden="true"></i>
+                                    </span>`;
+                        }
+                    }
+                ],
+                columnDefs: [
+                    { 'searchable': false, 'targets': [1, 2] },
+                    { 'sortable': false, 'targets': [1, 2] },
+                    { 'className': "text-left", "targets": [0] },
+                ],
+                createdRow: function (row, data, dataIndex) {
+                    $(row).attr('data-id', data.categoryId);
+                },
+            });
+        },
+        getData: function () {
+            dataTable.table ? dataTable.table.ajax.reload() : dataTable.init();
+        }
+    }
+
+    // addNewCategories using sweetalert2
+    $("#addNewCategories").click(function () {
+        Swal.fire({
+            title: 'Add New Category',
+            html:
+                '<input id="swal-input1" class="swal2-input" placeholder="Category Name">',
+            focusConfirm: false,
+            preConfirm: () => {
+                const categoryName = Swal.getPopup().querySelector('#swal-input1').value
+                if (!categoryName) {
+                    Swal.showValidationMessage(`Please enter category name`)
+                }
+                return { categoryName: categoryName }
+            }
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: `${userInfo.apiUrl}Categories`,
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json",
+                    data: JSON.stringify(result.value),
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Add New Category Successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        dataTable.table.row.add({
+                            "categoryId": response.categoryId,
+                            "categoryName": response.categoryName
+                        }).draw();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Add New Category Failed',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                });
+            }
+        })
+    });
+
+    // deleteCategory using sweetalert2
+    function deleteCategory(categoryId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DD6B55',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: `${userInfo.apiUrl}Categories/${categoryId}`,
+                    type: "DELETE",
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Delete Category Successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        dataTable.table.row($(`tr:has(td div[data-id=${categoryId}])`)).remove().draw();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Delete Category Failed',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                });
+            }
+        })
+    }
+
+    // editCategory using sweetalert2
+    function editCategory(categoryId) {
+        $.ajax({
+            url: `${userInfo.apiUrl}Categories/${categoryId}`,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            success: function (response) {
+                Swal.fire({
+                    title: 'Edit Category',
+                    html:
+                        `<input id="swal-input1" class="swal2-input" value="${response.categoryName}">`,
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        const categoryName = Swal.getPopup().querySelector('#swal-input1').value
+                        if (!categoryName) {
+                            Swal.showValidationMessage(`Please enter category name`)
+                        }
+                        return { categoryName: categoryName }
+                    }
+                }).then((result) => {
+                    let obj = {
+                        "categoryId": categoryId,
+                        "categoryName": result.value.categoryName
+                    }
+                    if (result.value) {
+                        $.ajax({
+                            url: `${userInfo.apiUrl}Categories/${categoryId}`,
+                            type: "PUT",
+                            dataType: "json",
+                            contentType: "application/json",
+                            data: JSON.stringify(obj),
+                            success: function (response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Edit Category Successfully',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                                dataTable.table.row($(`tr[data-id=${categoryId}]`)).data(obj).draw();
+                            },
+                            error: function (xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Edit Category Failed',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                })
+                            }
+                        });
+                    }
+                })
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Get Category Failed',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            }
+        });
+    }
+
+
+</script>
+}

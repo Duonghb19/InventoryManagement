@@ -5,6 +5,7 @@ using InventoryManagement.Models;
 using InventoryManagement.ODataConfig;
 using InventoryManagement.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,7 +20,10 @@ builder.Services.AddCors(options =>
 
 // Add Odata
 builder.Services.AddControllers().AddOData(option => option.AddRouteComponents("v1", IEdmModelConfig.GetEdmModel()).Filter().Select().Expand().Expand().OrderBy().Count().SetMaxTop(100));
-
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
 // Configure JWT authentication
 builder.Services.AddAuthentication(auth =>
 {

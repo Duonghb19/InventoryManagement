@@ -29,7 +29,7 @@ namespace InventoryManagementClient.Attributes
             // Kiểm tra xem vai trò của người dùng có trong danh sách cho phép không
             foreach (var allowedRole in allowedRoles)
             {
-                if (userInfo.Role.ToLower().Trim() == allowedRole.ToLower().Trim())
+                if(allowedRole.ToLower().Trim() == "all" || (userInfo.Role.ToLower().Trim() == allowedRole.ToLower().Trim()))
                 {
                     hasValidRole = true;
                     break;

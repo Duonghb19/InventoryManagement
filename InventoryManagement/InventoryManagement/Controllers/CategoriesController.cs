@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using InventoryManagement.Models;
 using InventoryManagement.Utils;
+using JqueryDataTables;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,14 +20,14 @@ namespace InventoryManagement.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategories()
+        [HttpPost("[action]")]
+        public IActionResult GetCategories([FromForm] DataRequest request)
         {
             if (_context.Categories == null)
             {
                 return NotFound();
             }
-            return _mapper.Map<List<CategoryDTO>>(await _context.Categories.ToListAsync());
+            return Ok(_context.Categories.ToDataResult(request));
         }
 
         [HttpGet("{id}")]
