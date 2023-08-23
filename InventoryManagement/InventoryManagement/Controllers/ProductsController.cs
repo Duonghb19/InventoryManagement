@@ -1,4 +1,5 @@
 ﻿using InventoryManagement.Models;
+using JqueryDataTables;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,15 +16,30 @@ namespace InventoryManagement.Controllers
             _context = context;
         }
 
-        // GET: api/Products
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        [HttpPost("[action]")]
+        public IActionResult GetProducts([FromForm] DataRequest request)
         {
             if (_context.Products == null)
             {
                 return NotFound();
             }
-            return await _context.Products.ToListAsync();
+            var productsWithDetails = _context.Products.Select(product => new
+            {
+                product.ProductId,
+                product.ProductName,
+                product.CategoryId,
+                product.QuantityInStock,
+                product.PurchasePrice,
+                product.SalePrice,
+                product.WarehouseId,
+                product.CreatedDate,
+                product.CreatedBy,
+                product.ModifiedDate,
+                product.ModifiedBy,
+                CategoryName = product.Category.CategoryName, // Include CategoryName
+                WarehouseName = product.Warehouse.WarehouseName // Include WarehouseName
+            }).ToDataResult(request);
+            return Ok(productsWithDetails);
         }
 
         // GET: api/Products/5

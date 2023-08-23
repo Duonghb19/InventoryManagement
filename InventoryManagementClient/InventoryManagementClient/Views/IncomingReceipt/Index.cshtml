@@ -1,0 +1,44 @@
+﻿@{
+ViewBag.Title = "Customers";
+Layout = "_AdminLayout";
+}
+<select class="js-data-example-ajax form-control"></select>
+@section Scripts {
+<script>
+    $('.js-data-example-ajax').select2({
+        ajax: {
+            url: `${userInfo.apiUrl}Warehouses/GetWarehouses`,
+            type: "POST",
+            data: function (params) {
+                let formData = new FormData();
+                formData.append("search.value", params.term || "");
+                formData.append("start", (params.page || 0) * 10);
+                formData.append("length", 10);
+                formData.append("draw", 1);
+                formData.append("columns[0][data]", "WarehouseName");
+                formData.append("columns[0][searchable]", true);
+                return formData;
+            },
+            processResults: function (data) {
+                let results = data.data.reduce((accumulator, currentValue) => {
+                    accumulator.push({
+                        id: currentValue.warehouseId,
+                        text: currentValue.warehouseName
+                    });
+                    return accumulator;
+                }, []);
+                return {
+                    results: results,
+                    pagination: {
+                        more: true
+                    }
+                };
+            },
+            contentType: false,
+            processData: false,
+            cache: true,
+            delay: 250,
+        }
+    });
+</script>
+}

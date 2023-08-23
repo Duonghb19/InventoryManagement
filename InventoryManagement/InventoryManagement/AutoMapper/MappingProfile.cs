@@ -19,6 +19,9 @@ namespace InventoryManagement.AutoMapper
 
             CreateMap<Customer, CustomerDTO>();
             CreateMap<CustomerDTO, Customer>();
+
+            CreateMap<Warehouse, WarehouseDTO>();
+            CreateMap<WarehouseDTO, Warehouse>();
         }
     }
 }

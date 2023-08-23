@@ -1,0 +1,273 @@
+﻿@{
+ViewBag.Title = "Warehouses";
+Layout = "_AdminLayout";
+}
+<div class=" m-md-3">
+    <div class="row">
+        <div class="col justify-content-center align-self-center">
+            <h4 class="page-header">Warehouses List</h4>
+        </div>
+        <div class="col text-right">
+            <span id="addNewWarehouse" class="btn-floating peach-gradient" title="Add New Warehouse"
+                data-toggle="tooltip">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
+
+    <div class="card card-body">
+        <table id="data-table" class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Warehouse Name</th>
+                    <th>Location</th>
+                    <th style="width:50px">Edit</th>
+                    <th style="width:50px">Delete</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(function () {
+        dataTable.getData();
+    });
+    var dataTable = {
+        table: null,
+        init: function () {
+            dataTable.table = $("#data-table").DataTable({
+                processing: true,
+                serverSide: true,
+                scrollCollapse: true,
+                scrollY: "calc(100vh - 400px)",
+                ajax: {
+                    url: `${userInfo.apiUrl}warehouses/getwarehouses`,
+                    type: "POST"
+                },
+                columns: [
+                    {
+                        data: "WarehouseName",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-left">${row.warehouseName}</span>`;
+                        }
+                    },
+                    {
+                        data: "Location",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-left">${row.location}</span>`;
+                        }
+                    },
+                    {
+                        data: "WarehouseId",
+                        render: function (data, type, row, meta) {
+                            return `<a class="btn-floating btn-sm btn-blue" onclick="editWarehouse(${row.warehouseId})" title="Edit" data-toggle="tooltip">
+                                                    <i class="fa fa-pencil" aria-hidden="true"></i>
+                                                </a>`;
+                        }
+                    },
+                    {
+                        data: "WarehouseId",
+                        render: function (data, type, row, meta) {
+                            return `<span class="btn-floating btn-sm btn-danger" title="Delete" data-toggle="tooltip" onclick="deleteWarehouse(${row.warehouseId})">
+                                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                                </span>`;
+                        }
+                    }
+                ],
+                columnDefs: [
+                    { 'searchable': false, 'targets': [2, 3] },
+                    { 'sortable': false, 'targets': [2, 3] },
+                    { 'className': "text-left", "targets": [0, 1] },
+                ],
+                createdRow: function (row, data, dataIndex) {
+                    $(row).attr('data-id', data.warehouseId);
+                },
+            });
+        },
+        getData: function () {
+            dataTable.table ? dataTable.table.ajax.reload() : dataTable.init();
+        }
+    }
+    // add new warehouse using sweetalert2
+    $("#addNewWarehouse").click(function () {
+        Swal.fire({
+            title: 'Add New Warehouse',
+            html: `<div class="card-body">
+                                <div class="form-group">
+                                    <label for="warehouseName">Warehouse Name</label>
+                                    <input type="text" class="form-control" id="warehouseName" placeholder="Enter Warehouse Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactPerson">Contact Person</label>
+                                    <input type="text" class="form-control" id="contactPerson" placeholder="Enter Contact Person">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactEmail">Contact Email</label>
+                                    <input type="email" class="form-control" id="contactEmail" placeholder="Enter Contact Email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="contactPhone">Contact Phone</label>
+                                    <input type="text" class="form-control" id="contactPhone" placeholder="Enter Contact Phone">
+                                </div>
+                        </div>`,
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                var warehouseName = $("#warehouseName").val();
+                var contactPerson = $("#contactPerson").val();
+                var contactEmail = $("#contactEmail").val();
+                var contactPhone = $("#contactPhone").val();
+                if (warehouseName == "" || contactPerson == "" || contactEmail == "" || contactPhone == "") {
+                    Swal.showValidationMessage(`Please fill all the fields`);
+                }
+                else {
+                    var data = {
+                        warehouseName: warehouseName,
+                        contactPerson: contactPerson,
+                        contactEmail: contactEmail,
+                        contactPhone: contactPhone
+                    };
+                    return $.ajax({
+                        url: `${userInfo.apiUrl}warehouses`,
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json",
+                        data: JSON.stringify(data),
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Add New Warehouse Successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            dataTable.table.row.add(response).draw();
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Add New Warehouse Failed',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    // deleteWarehouse using sweetalert2
+    function deleteWarehouse(warehouseId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DD6B55',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: `${userInfo.apiUrl}warehouses/${warehouseId}`,
+                    type: "DELETE",
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Delete Warehouse Successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        dataTable.table.row(`tr[data-id=${warehouseId}]`).remove().draw();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Delete Warehouse Failed',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                });
+            }
+        })
+    }
+
+    // editWarehouse using sweetalert2
+    async function editWarehouse(warehouseId) {
+        // get warehouse by warehouseId
+        let warehouse = await $.ajax({
+            url: `${userInfo.apiUrl}warehouses/${warehouseId}`,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json"
+        });
+        if (!warehouse) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Edit Warehouse Failed',
+                showConfirmButton: false,
+                timer: 1500
+            })
+            return;
+        };
+        Swal.fire({
+            title: 'Edit Warehouse',
+            html: `<div class="card-body">
+                            <div class="form-group">
+                                <label for="warehouseName">Warehouse Name</label>
+                                <input type="text" class="form-control" id="warehouseName" placeholder="Enter Warehouse Name" value="${warehouse.warehouseName}">
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Location</label>
+                                <input type="text" class="form-control" id="location" placeholder="Enter Location" value="${warehouse.location}">
+                            </div>
+                    </div>`,
+            focusConfirm: false,
+            preConfirm: () => {
+                var warehouseName = $("#warehouseName").val();
+                var location = $("#location").val();
+                if (warehouseName == "" || location == "") {
+                    Swal.showValidationMessage(`Please fill all the fields`);
+                }
+                else {
+                    var data = {
+                        warehouseId: warehouseId,
+                        warehouseName: warehouseName,
+                        location: location
+                    };
+                    return $.ajax({
+                        url: `${userInfo.apiUrl}warehouses/${warehouseId}`,
+                        type: "PUT",
+                        dataType: "json",
+                        contentType: "application/json",
+                        data: JSON.stringify(data),
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Edit Warehouse Successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            dataTable.table.row(`tr[data-id=${warehouseId}]`).data(response).draw();
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Edit Warehouse Failed',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    });
+                }
+            }
+        })
+    }
+</script>
+}

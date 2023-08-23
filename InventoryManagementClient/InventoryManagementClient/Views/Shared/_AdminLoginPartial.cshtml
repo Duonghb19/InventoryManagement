@@ -38,52 +38,59 @@
         @if (userInfo.Role.ToLower() == "admin")
         {
             <li>
-                <strong>
-                    <span class="fas fa-tachometer-alt"></span>
-                    <a class="links link-active" href="/Dashboard/Index">Dashboard</a>
-                </strong>
+                <a class="links link-active" href="/Dashboard/Index">
+                    <span class="fas fa-tachometer-alt mr-2"></span>
+                    Dashboard
+                </a>
             </li>
             <li>
-                <strong>
-                    <span class="fas fa-truck"></span>
-                    <a class="links link-active" href="/Suppliers/Index">Suppliers</a>
-                </strong>
+                <a class="links link-active" href="/Supplier/Index">
+                    <span class="fas fa-truck mr-2"></span>
+                    Suppliers
+                </a>
             </li>
             <li>
-                <strong>
-                    <span class="fas fa-users"></span>
-                    <a class="links link-active" href="/Customers/Index">Customers</a>
-                </strong>
+                <a class="links link-active" href="/Customer/Index">
+                    <span class="fas fa-users mr-2"></span>
+                    Customers
+                </a>
             </li>
             <li>
-                <strong>
-                    <span class="fas fa-list"></span>
-                    <a class="links link-active" href="/Product/Categories">Product Categories</a>
-                </strong>
+                <a class="links link-active" href="/Warehouse/Index">
+                    <span class="fas fa-users mr-2"></span>
+                    Warehouses
+                </a>
             </li>
             <li>
-                <strong>
-                    <span class="fas fa-boxes"></span>
-                    <a class="links link-active" href="/Product/Index">Products</a>
-                </strong>
+                <a class="links link-active" href="/Product/Categories">
+                    <span class="fas fa-list mr-2"></span>
+                    Product Categories
+                </a>
             </li>
             <li>
-                <strong>
-                    <span class="fas fa-file-invoice"></span>
-                    <a class="links link-active" href="/Incoming/Index">Incoming Receipts</a>
-                </strong>
+
+                <a class="links link-active" href="/Product/Index">
+                    <span class="fas fa-boxes mr-2"></span>
+                    Products
+                </a>
             </li>
             <li>
-                <strong>
-                    <span class="fas fa-file-invoice"></span>
-                    <a class="links link-active" href="/Outgoing/Index">Outgoing Orders</a>
-                </strong>
+                <a class="links link-active" href="/IncomingReceipt/Index">
+                    <span class="fas fa-file-invoice mr-2"></span>
+                    Incoming Receipts
+                </a>
             </li>
             <li>
-                <strong>
-                    <span class="fas fa-users"></span>
-                    <a class="links link-active" href="/Users/Index">Users</a>
-                </strong>
+                <a class="links link-active" href="/OutgoingOrder/Index">
+                    <span class="fas fa-file-invoice mr-2"></span>
+                    Outgoing Orders
+                </a>
+            </li>
+            <li>
+                <a class="links link-active" href="/User/Index">
+                    <span class="fas fa-users mr-2"></span>
+                    Users
+                </a>
             </li>
         }
     </ul>

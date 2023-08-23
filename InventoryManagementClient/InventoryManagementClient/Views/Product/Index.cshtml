@@ -1,4 +1,314 @@
 ﻿@{
-    ViewBag.Title = "Products";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+ViewBag.Title = "Products";
+Layout = "_AdminLayout";
+}
+<div class=" m-md-3">
+    <div class="row">
+        <div class="col justify-content-center align-self-center">
+            <h4 class="page-header">Products List</h4>
+        </div>
+        <div class="col text-right">
+            <span id="addNewProduct" class="btn-floating peach-gradient" title="Add New Product" data-toggle="tooltip">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
+    <div class="card card-body">
+        <table id="data-table" class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Category Name</th>
+                    <th>Quantity In Stock</th>
+                    <th>Purchase Price</th>
+                    <th>Sale Price</th>
+                    <th>Warehouse Name</th>
+                    <th style="width:50px">Edit</th>
+                    <th style="width:50px">Delete</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(function () {
+        dataTable.getData();
+    });
+    var dataTable = {
+        table: null,
+        init: function () {
+            dataTable.table = $("#data-table").DataTable({
+                searchDelay: 500,
+                processing: true,
+                serverSide: true,
+                scrollCollapse: true,
+                scrollY: "calc(100vh - 400px)",
+                ajax: {
+                    url: `${userInfo.apiUrl}products/getproducts`,
+                    type: "POST"
+                },
+                columns: [
+                    {
+                        data: "ProductName",
+                        render: function (data, type, row, meta) {
+                            return `<span>${row.productName}</span>`;
+                        }
+                    },
+                    {
+                        data: "CategoryName",
+                        render: function (data, type, row, meta) {
+                            return `<span>${row.categoryName ?? ""}</span>`;
+                        }
+                    },
+                    {
+                        data: "QuantityInStock",
+                        render: function (data, type, row, meta) {
+                            return `<span">${row.quantityInStock}</span>`;
+                        }
+                    },
+                    {
+                        data: "PurchasePrice",
+                        render: function (data, type, row, meta) {
+                            return `<span">$${row.purchasePrice}</span>`;
+                        }
+                    },
+                    {
+                        data: "SalePrice",
+                        render: function (data, type, row, meta) {
+                            return `<span">$${row.salePrice}</span>`;
+                        }
+                    },
+                    {
+                        data: "WarehouseName",
+                        render: function (data, type, row, meta) {
+                            return `<span>${row.warehouseName ?? ""}</span>`;
+                        }
+                    },
+                    {
+                        data: "ProductId",
+                        render: function (data, type, row, meta) {
+                            return `<a class="btn-floating btn-sm btn-blue" onclick="editProduct(${row.productId})" title="Edit" data-toggle="tooltip">
+                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                        </a>`;
+                        }
+                    },
+                    {
+                        data: "ProductId",
+                        render: function (data, type, row, meta) {
+                            return `<span class="btn-floating btn-sm btn-danger" title="Delete" data-toggle="tooltip" onclick="deleteProduct(${row.productId})">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </span>`;
+                        }
+                    }
+                ],
+                columnDefs: [
+                    { 'searchable': false, 'targets': [6, 7] },
+                    { 'sortable': false, 'targets': [6, 7] },
+                    { 'className': "text-left", "targets": [0, 1, 5] },
+                    { 'className': "text-right", "targets": [2, 3, 4] }
+                ],
+                createdRow: function (row, data, dataIndex) {
+                    $(row).attr('data-id', data.productId);
+                },
+            });
+        },
+        getData: function () {
+            dataTable.table ? dataTable.table.ajax.reload() : dataTable.init();
+        }
+    }
+
+        // // Add New Product
+        // $("#addNewProduct").click(function () {
+        //     Swal.fire({
+        //         title: 'Add New Product',
+        //         html: `<div class="card-body">
+        //                     <div class="form-group">
+        //                         <label for="customerName">Product Name</label>
+        //                         <input type="text" class="form-control" id="customerName" placeholder="Enter Product Name">
+        //                     </div>
+        //                     <div class="form-group">
+        //                         <label for="contactPerson">Contact Person</label>
+        //                         <input type="text" class="form-control" id="contactPerson" placeholder="Enter Contact Person">
+        //                     </div>
+        //                     <div class="form-group">
+        //                         <label for="contactEmail">Contact Email</label>
+        //                         <input type="email" class="form-control" id="contactEmail" placeholder="Enter Contact Email">
+        //                     </div>
+        //                     <div class="form-group">
+        //                         <label for="contactPhone">Contact Phone</label>
+        //                         <input type="text" class="form-control" id="contactPhone" placeholder="Enter Contact Phone">
+        //                     </div>
+        //             </div>`,
+        //         showCancelButton: true,
+        //         confirmButtonText: 'Save',
+        //         showLoaderOnConfirm: true,
+        //         preConfirm: () => {
+        //             var customerName = $("#customerName").val();
+        //             var contactPerson = $("#contactPerson").val();
+        //             var contactEmail = $("#contactEmail").val();
+        //             var contactPhone = $("#contactPhone").val();
+        //             if (customerName == "" || contactPerson == "" || contactEmail == "" || contactPhone == "") {
+        //                 Swal.showValidationMessage(`Please fill all the fields`);
+        //             }
+        //             else {
+        //                 var data = {
+        //                     customerName: customerName,
+        //                     contactPerson: contactPerson,
+        //                     contactEmail: contactEmail,
+        //                     contactPhone: contactPhone
+        //                 };
+        //                 return $.ajax({
+        //                     url: `${userInfo.apiUrl}customers`,
+        //                     type: "POST",
+        //                     dataType: "json",
+        //                     contentType: "application/json",
+        //                     data: JSON.stringify(data),
+        //                     success: function (response) {
+        //                         Swal.fire({
+        //                             icon: 'success',
+        //                             title: 'Add New Product Successfully',
+        //                             showConfirmButton: false,
+        //                             timer: 1500
+        //                         })
+        //                         dataTable.table.row.add(response).draw();
+        //                     },
+        //                     error: function (xhr) {
+        //                         Swal.fire({
+        //                             icon: 'error',
+        //                             title: 'Add New Product Failed',
+        //                             showConfirmButton: false,
+        //                             timer: 1500
+        //                         })
+        //                     }
+        //                 });
+        //             }
+        //         }
+        //     });
+        // });
+
+        // // Delete Product
+        // function deleteCustomer(customerId) {
+        //     Swal.fire({
+        //         title: 'Are you sure?',
+        //         text: "You won't be able to revert this!",
+        //         icon: 'warning',
+        //         showCancelButton: true,
+        //         confirmButtonColor: '#DD6B55',
+        //         cancelButtonColor: '#d33',
+        //         confirmButtonText: 'Yes, delete it!'
+        //     }).then((result) => {
+        //         if (result.value) {
+        //             $.ajax({
+        //                 url: `${userInfo.apiUrl}customers/${customerId}`,
+        //                 type: "DELETE",
+        //                 dataType: "json",
+        //                 contentType: "application/json",
+        //                 success: function (response) {
+        //                     Swal.fire({
+        //                         icon: 'success',
+        //                         title: 'Delete Product Successfully',
+        //                         showConfirmButton: false,
+        //                         timer: 1500
+        //                     })
+        //                     dataTable.table.row($(`tr[data-id=${customerId}]`)).remove().draw();
+        //                 },
+        //                 error: function (xhr) {
+        //                     Swal.fire({
+        //                         icon: 'error',
+        //                         title: 'Delete Product Failed',
+        //                         showConfirmButton: false,
+        //                         timer: 1500
+        //                     })
+        //                 }
+        //             });
+        //         }
+        //     })
+        // }
+
+        // // Edit Product
+        // async function editCustomer(customerId) {
+        //     // get customer by customerId
+        //     let customer = await $.ajax({
+        //         url: `${userInfo.apiUrl}customers/${customerId}`,
+        //         type: "GET",
+        //         dataType: "json",
+        //         contentType: "application/json"
+        //     });
+        //     if (!customer) {
+        //         Swal.fire({
+        //             icon: 'error',
+        //             title: 'Edit Product Failed',
+        //             showConfirmButton: false,
+        //             timer: 1500
+        //         })
+        //         return;
+        //     };
+        //     Swal.fire({
+        //         title: 'Edit Product',
+        //         html: `<div class="card-body">
+        //                     <div class="form-group">
+        //                         <label for="customerName">Product Name</label>
+        //                         <input type="text" class="form-control" id="customerName" placeholder="Enter Product Name" value="${customer.customerName}">
+        //                     </div>
+        //                     <div class="form-group">
+        //                         <label for="contactPerson">Contact Person</label>
+        //                         <input type="text" class="form-control" id="contactPerson" placeholder="Enter Contact Person" value="${customer.contactPerson}">
+        //                     </div>
+        //                     <div class="form-group">
+        //                         <label for="contactEmail">Contact Email</label>
+        //                         <input type="email" class="form-control" id="contactEmail" placeholder="Enter Contact Email" value="${customer.contactEmail}">
+        //                     </div>
+        //                     <div class="form-group">
+        //                         <label for="contactPhone">Contact Phone</label>
+        //                         <input type="text" class="form-control" id="contactPhone" placeholder="Enter Contact Phone" value="${customer.contactPhone}">
+        //                     </div>
+        //             </div>`,
+        //         focusConfirm: false,
+        //         preConfirm: () => {
+        //             var customerName = $("#customerName").val();
+        //             var contactPerson = $("#contactPerson").val();
+        //             var contactEmail = $("#contactEmail").val();
+        //             var contactPhone = $("#contactPhone").val();
+        //             if (customerName == "" || contactPerson == "" || contactEmail == "" || contactPhone == "") {
+        //                 Swal.showValidationMessage(`Please fill all the fields`);
+        //             }
+        //             else {
+        //                 var data = {
+        //                     customerId: customerId,
+        //                     customerName: customerName,
+        //                     contactPerson: contactPerson,
+        //                     contactEmail: contactEmail,
+        //                     contactPhone: contactPhone
+        //                 };
+        //                 return $.ajax({
+        //                     url: `${userInfo.apiUrl}customers/${customerId}`,
+        //                     type: "PUT",
+        //                     dataType: "json",
+        //                     contentType: "application/json",
+        //                     data: JSON.stringify(data),
+        //                     success: function (response) {
+        //                         Swal.fire({
+        //                             icon: 'success',
+        //                             title: 'Edit Product Successfully',
+        //                             showConfirmButton: false,
+        //                             timer: 1500
+        //                         })
+        //                         dataTable.table.row(`tr[data-id=${customerId}]`).data(response).draw();
+        //                     },
+        //                     error: function (xhr) {
+        //                         Swal.fire({
+        //                             icon: 'error',
+        //                             title: 'Edit Product Failed',
+        //                             showConfirmButton: false,
+        //                             timer: 1500
+        //                         })
+        //                     }
+        //                 });
+        //             }
+        //         }
+        //     })
+        // }
+</script>
 }

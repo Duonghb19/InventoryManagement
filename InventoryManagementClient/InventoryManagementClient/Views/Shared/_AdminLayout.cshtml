@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
-@{
-var userInfo = Context.Items["UserInfo"] ?? null as UserInfo;
-var accessToken = Context.Items["AccessToken"] as string;
-var apiUrl = Context.Items["APIService"] as string;
+﻿@{
+    var userInfo = Context.Items["UserInfo"] ?? null as UserInfo;
+    var accessToken = Context.Items["AccessToken"] as string;
+    var apiUrl = Context.Items["APIService"] as string;
 }
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -11,7 +11,7 @@ var apiUrl = Context.Items["APIService"] as string;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewData["Title"] - InventoryManagement</title>
     <!-- Font Awesome -->
-    <link href="https://pro.fontawesome.com/releases/v5.11.0/css/all.css" rel="stylesheet" />
+    @*<link href="https://pro.fontawesome.com/releases/v5.11.0/css/all.css" rel="stylesheet" />*@
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <!-- MDB -->
@@ -22,9 +22,10 @@ var apiUrl = Context.Items["APIService"] as string;
     <link href="~/css/croper.css" rel="stylesheet" />
     <!-- custom -->
     <link href="~/css/custom-admin.css" rel="stylesheet" />
-    <link
-        href="https://cdn.datatables.net/v/dt/dt-1.13.6/af-2.6.0/b-2.4.1/b-colvis-2.4.1/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.10.0/r-2.5.0/sc-2.2.0/sb-1.5.0/sp-2.2.0/datatables.min.css"
-        rel="stylesheet">
+    <!-- datatables -->
+    <link href="~/css/datatable.css" rel="stylesheet" />
+    <!-- select2-->
+    <link href="~/css/select2.min.css" rel="stylesheet" />
 
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
@@ -72,29 +73,21 @@ var apiUrl = Context.Items["APIService"] as string;
         window.userInfo = userInfo;
     </script>
 
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <!-- bootstrap tooltips -->
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
+    <script src="~/lib/popper.min.js"></script>
     <!-- bootstrap core javaScript -->
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
     <!-- data-tables button -->
-    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
-
-    <script
-        src="https://cdn.datatables.net/v/dt/dt-1.13.6/af-2.6.0/b-2.4.1/b-colvis-2.4.1/date-1.5.1/fc-4.3.0/fh-3.4.0/kt-2.10.0/r-2.5.0/sc-2.2.0/sb-1.5.0/sp-2.2.0/datatables.min.js"></script>
-    <!-- image crop-er -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.4/croppie.min.js"></script>
+    <script src="~/lib/datatable.js"></script>
+    <script src="~/lib/pdfmake.min.js"></script>
+    <script src="~/lib/vfs_fonts.js"></script>
     <!--scroll-->
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.7.6/jquery.nicescroll.min.js"></script>
+    <script src="~/lib/jquery.nicescroll.min.js"></script>
     <!-- axios -->
     <script type="text/javascript" src="~/lib/axios.min.js"></script>
     <!-- autocomplete -->
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.2/bootstrap3-typeahead.min.js"></script>
+    <script type="text/javascript" src="~/lib/bootstrap3_typeahead.min.js"></script>
     <!-- MDB core javaScript -->
     <script src="~/mdb/js/mdb-admin.min.js"></script>
     <!-- notify js-->
@@ -104,9 +97,11 @@ var apiUrl = Context.Items["APIService"] as string;
     <!-- custom date format-->
     <script src="~/js/customDateFormat.js"></script>
     <!-- sweetalert2-->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/lib/sweetalert2.min.js"></script>
+    <!-- select2-->
+    <script src="~/lib/select2.min.js"></script>
     <!-- sidebar-->
-    <script src="https://cdn.muicss.com/mui-latest/js/mui.min.js"></script>
+    <script src="~/lib/mui.min.js"></script>
     <!-- menu-links -->
     <script src="~/js/sidedrawer-show-hide.js"></script>
 

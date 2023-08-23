@@ -98,7 +98,7 @@
   color: #393939;
 }
 
-#sidedrawer strong {
+#sidedrawer .links {
   display: block;
   padding: 15px 20px;
   cursor: pointer;

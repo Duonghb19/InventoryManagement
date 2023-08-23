@@ -1,0 +1,300 @@
+﻿@{
+ViewBag.Title = "Suppliers";
+Layout = "_AdminLayout";
+}
+<div class=" m-md-3">
+    <div class="row">
+        <div class="col justify-content-center align-self-center">
+            <h4 class="page-header">Suppliers List</h4>
+        </div>
+        <div class="col text-right">
+            <span id="addNewSupplier" class="btn-floating peach-gradient" title="Add New Supplier"
+                data-toggle="tooltip">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
+
+    <div class="card card-body">
+        <table id="data-table" class="table table-sm table-bordered">
+            <thead>
+                <tr>
+                    <th>Supplier Name</th>
+                    <th>Contact Person</th>
+                    <th>Contact Email</th>
+                    <th>Contact Phone</th>
+                    <th style="width:50px">Edit</th>
+                    <th style="width:50px">Delete</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(function () {
+        dataTable.getData();
+    });
+    var dataTable = {
+        table: null,
+        init: function () {
+            dataTable.table = $("#data-table").DataTable({
+                processing: true,
+                serverSide: true,
+                scrollCollapse: true,
+                scrollY: "calc(100vh - 400px)",
+                ajax: {
+                    url: `${userInfo.apiUrl}suppliers/getsuppliers`,
+                    type: "POST"
+                },
+                columns: [
+                    {
+                        data: "SupplierName",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-left">${row.supplierName}</span>`;
+                        }
+                    },
+                    {
+                        data: "ContactPerson",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-left">${row.contactPerson}</span>`;
+                        }
+                    },
+                    {
+                        data: "ContactEmail",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-left">${row.contactEmail}</span>`;
+                        }
+                    },
+                    {
+                        data: "ContactPhone",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-left">${row.contactPhone}</span>`;
+                        }
+                    },
+
+                    {
+                        data: "SupplierId",
+                        render: function (data, type, row, meta) {
+                            return `<a class="btn-floating btn-sm btn-blue" onclick="editSupplier(${row.supplierId})" title="Edit" data-toggle="tooltip">
+                                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                                        </a>`;
+                        }
+                    },
+                    {
+                        data: "SupplierId",
+                        render: function (data, type, row, meta) {
+                            return `<span class="btn-floating btn-sm btn-danger" title="Delete" data-toggle="tooltip" onclick="deleteSupplier(${row.supplierId})">
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </span>`;
+                        }
+                    }
+                ],
+                columnDefs: [
+                    { 'searchable': false, 'targets': [4, 5] },
+                    { 'sortable': false, 'targets': [4, 5] },
+                    { 'className': "text-left", "targets": [0, 1, 2, 3] },
+                ],
+                createdRow: function (row, data, dataIndex) {
+                    $(row).attr('data-id', data.supplierId);
+                },
+            });
+        },
+        getData: function () {
+            dataTable.table ? dataTable.table.ajax.reload() : dataTable.init();
+        }
+    }
+    // add new supplier using sweetalert2
+    $("#addNewSupplier").click(function () {
+        Swal.fire({
+            title: 'Add New Supplier',
+            html: `<div class="card-body">
+                        <div class="form-group">
+                            <label for="supplierName">Supplier Name</label>
+                            <input type="text" class="form-control" id="supplierName" placeholder="Enter Supplier Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPerson">Contact Person</label>
+                            <input type="text" class="form-control" id="contactPerson" placeholder="Enter Contact Person">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactEmail">Contact Email</label>
+                            <input type="email" class="form-control" id="contactEmail" placeholder="Enter Contact Email">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPhone">Contact Phone</label>
+                            <input type="text" class="form-control" id="contactPhone" placeholder="Enter Contact Phone">
+                        </div>
+                </div>`,
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                var supplierName = $("#supplierName").val();
+                var contactPerson = $("#contactPerson").val();
+                var contactEmail = $("#contactEmail").val();
+                var contactPhone = $("#contactPhone").val();
+                if (supplierName == "" || contactPerson == "" || contactEmail == "" || contactPhone == "") {
+                    Swal.showValidationMessage(`Please fill all the fields`);
+                }
+                else {
+                    var data = {
+                        supplierName: supplierName,
+                        contactPerson: contactPerson,
+                        contactEmail: contactEmail,
+                        contactPhone: contactPhone
+                    };
+                    return $.ajax({
+                        url: `${userInfo.apiUrl}suppliers`,
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json",
+                        data: JSON.stringify(data),
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Add New Supplier Successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            dataTable.table.row.add(response).draw();
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Add New Supplier Failed',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    // deleteSupplier using sweetalert2
+    function deleteSupplier(supplierId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DD6B55',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: `${userInfo.apiUrl}suppliers/${supplierId}`,
+                    type: "DELETE",
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Delete Supplier Successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        dataTable.table.row(`tr[data-id=${supplierId}]`).remove().draw();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Delete Supplier Failed',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                });
+            }
+        })
+    }
+
+    // editSupplier using sweetalert2
+    async function editSupplier(supplierId) {
+        // get supplier by supplierId
+        let supplier = await $.ajax({
+            url: `${userInfo.apiUrl}suppliers/${supplierId}`,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json"
+        });
+        if (!supplier) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Edit Supplier Failed',
+                showConfirmButton: false,
+                timer: 1500
+            })
+            return;
+        };
+        Swal.fire({
+            title: 'Edit Supplier',
+            html: `<div class="card-body">
+                        <div class="form-group">
+                            <label for="supplierName">Supplier Name</label>
+                            <input type="text" class="form-control" id="supplierName" placeholder="Enter Supplier Name" value="${supplier.supplierName}">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPerson">Contact Person</label>
+                            <input type="text" class="form-control" id="contactPerson" placeholder="Enter Contact Person" value="${supplier.contactPerson}">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactEmail">Contact Email</label>
+                            <input type="email" class="form-control" id="contactEmail" placeholder="Enter Contact Email" value="${supplier.contactEmail}">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPhone">Contact Phone</label>
+                            <input type="text" class="form-control" id="contactPhone" placeholder="Enter Contact Phone" value="${supplier.contactPhone}">
+                        </div>
+                </div>`,
+            focusConfirm: false,
+            preConfirm: () => {
+                var supplierName = $("#supplierName").val();
+                var contactPerson = $("#contactPerson").val();
+                var contactEmail = $("#contactEmail").val();
+                var contactPhone = $("#contactPhone").val();
+                if (supplierName == "" || contactPerson == "" || contactEmail == "" || contactPhone == "") {
+                    Swal.showValidationMessage(`Please fill all the fields`);
+                }
+                else {
+                    var data = {
+                        supplierId: supplierId,
+                        supplierName: supplierName,
+                        contactPerson: contactPerson,
+                        contactEmail: contactEmail,
+                        contactPhone: contactPhone
+                    };
+                    return $.ajax({
+                        url: `${userInfo.apiUrl}suppliers/${supplierId}`,
+                        type: "PUT",
+                        dataType: "json",
+                        contentType: "application/json",
+                        data: JSON.stringify(data),
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Edit Supplier Successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            dataTable.table.row(`tr[data-id=${supplierId}]`).data(response).draw();
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Edit Supplier Failed',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    });
+                }
+            }
+        })
+    }
+</script>
+}
