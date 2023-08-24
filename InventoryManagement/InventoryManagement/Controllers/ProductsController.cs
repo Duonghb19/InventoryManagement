@@ -2,6 +2,7 @@
 using InventoryManagement.Models;
 using InventoryManagement.Utils;
 using JqueryDataTables;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace InventoryManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductsController : BaseControllerCustom
     {
         private readonly InventoryManagementContext _context;
@@ -78,6 +80,7 @@ namespace InventoryManagement.Controllers
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
+        [CustomAuthorize("admin")]
         public async Task<IActionResult> PutProduct(int id, Product product)
         {
             if (id != product.ProductId)
@@ -109,6 +112,7 @@ namespace InventoryManagement.Controllers
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [CustomAuthorize("admin")]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
             if (_context.Products == null)
@@ -123,6 +127,7 @@ namespace InventoryManagement.Controllers
 
         // DELETE: api/Products/5
         [HttpDelete("{id}")]
+        [CustomAuthorize("admin")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             if (_context.Products == null)

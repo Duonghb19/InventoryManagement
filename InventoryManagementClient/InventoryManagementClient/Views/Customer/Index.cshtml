@@ -1,6 +1,6 @@
 ﻿@{
-    ViewBag.Title = "Customers";
-    Layout = "_AdminLayout";
+ViewBag.Title = "Customers";
+Layout = "_AdminLayout";
 }
 <div class=" m-md-3">
     <div class="row">
@@ -9,7 +9,7 @@
         </div>
         <div class="col text-right">
             <span id="addNewCustomer" class="btn-floating peach-gradient" title="Add New Customer"
-                  data-toggle="tooltip">
+                data-toggle="tooltip">
                 <i class="fa fa-plus" aria-hidden="true"></i>
             </span>
         </div>
@@ -32,85 +32,86 @@
 </div>
 
 @section Scripts {
-    <script>
-        $(function () {
-            dataTable.getData();
-        });
-        var dataTable = {
-            table: null,
-            init: function () {
-                dataTable.table = $("#data-table").DataTable({
-                    processing: true,
-                    serverSide: true,
-                    scrollCollapse: true,
-                    scrollY: "calc(100vh - 400px)",
-                    ajax: {
-                        url: `${userInfo.apiUrl}customers/getcustomers`,
-                        type: "POST"
+<script>
+    $(function () {
+        dataTable.getData();
+    });
+    var dataTable = {
+        table: null,
+        init: function () {
+            dataTable.table = $("#data-table").DataTable({
+                processing: true,
+                serverSide: true,
+                scrollCollapse: true,
+                scrollY: "calc(100vh - 400px)",
+                ajax: {
+                    url: `${userInfo.apiUrl}customers/getcustomers`,
+                    headers: { 'Authorization': `Bearer ${userInfo.token}` },
+                    type: "POST"
+                },
+                columns: [
+                    {
+                        data: "CustomerName",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-left">${row.customerName}</span>`;
+                        }
                     },
-                    columns: [
-                        {
-                            data: "CustomerName",
-                            render: function (data, type, row, meta) {
-                                return `<span class="text-left">${row.customerName}</span>`;
-                            }
-                        },
-                        {
-                            data: "ContactPerson",
-                            render: function (data, type, row, meta) {
-                                return `<span class="text-left">${row.contactPerson}</span>`;
-                            }
-                        },
-                        {
-                            data: "ContactEmail",
-                            render: function (data, type, row, meta) {
-                                return `<span class="text-left">${row.contactEmail}</span>`;
-                            }
-                        },
-                        {
-                            data: "ContactPhone",
-                            render: function (data, type, row, meta) {
-                                return `<span class="text-left">${row.contactPhone}</span>`;
-                            }
-                        },
+                    {
+                        data: "ContactPerson",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-left">${row.contactPerson}</span>`;
+                        }
+                    },
+                    {
+                        data: "ContactEmail",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-left">${row.contactEmail}</span>`;
+                        }
+                    },
+                    {
+                        data: "ContactPhone",
+                        render: function (data, type, row, meta) {
+                            return `<span class="text-left">${row.contactPhone}</span>`;
+                        }
+                    },
 
-                        {
-                            data: "CustomerId",
-                            render: function (data, type, row, meta) {
-                                return `<a class="btn-floating btn-sm btn-blue" onclick="editCustomer(${row.customerId})" title="Edit" data-toggle="tooltip">
+                    {
+                        data: "CustomerId",
+                        render: function (data, type, row, meta) {
+                            return `<a class="btn-floating btn-sm btn-blue" onclick="editCustomer(${row.customerId})" title="Edit" data-toggle="tooltip">
                                             <i class="fa fa-pencil" aria-hidden="true"></i>
                                         </a>`;
-                            }
-                        },
-                        {
-                            data: "CustomerId",
-                            render: function (data, type, row, meta) {
-                                return `<span class="btn-floating btn-sm btn-danger" title="Delete" data-toggle="tooltip" onclick="deleteCustomer(${row.customerId})">
+                        }
+                    },
+                    {
+                        data: "CustomerId",
+                        render: function (data, type, row, meta) {
+                            return `<span class="btn-floating btn-sm btn-danger" title="Delete" data-toggle="tooltip" onclick="deleteCustomer(${row.customerId})">
                                             <i class="fa fa-trash" aria-hidden="true"></i>
                                         </span>`;
-                            }
                         }
-                    ],
-                    columnDefs: [
-                        { 'searchable': false, 'targets': [4, 5] },
-                        { 'sortable': false, 'targets': [4, 5] },
-                        { 'className': "text-left", "targets": [0, 1, 2, 3] },
-                    ],
-                    createdRow: function (row, data, dataIndex) {
-                        $(row).attr('data-id', data.customerId);
-                    },
-                });
-            },
-            getData: function () {
-                dataTable.table ? dataTable.table.ajax.reload() : dataTable.init();
-            }
+                    }
+                ],
+                columnDefs: [
+                    { 'searchable': false, 'targets': [4, 5] },
+                    { 'sortable': false, 'targets': [4, 5] },
+                    { 'className': "text-left", "targets": [0, 1, 2, 3] },
+                ],
+                createdRow: function (row, data, dataIndex) {
+                    $(row).attr('data-id', data.customerId);
+                },
+            });
+        },
+        getData: function () {
+            dataTable.table ? dataTable.table.ajax.reload() : dataTable.init();
         }
+    }
 
-        // Add New Customer
-        $("#addNewCustomer").click(function () {
-            Swal.fire({
-                title: 'Add New Customer',
-                html: `<div class="card-body">
+    // Add New Customer
+    $("#addNewCustomer").click(function () {
+        Swal.fire({
+            title: 'Add New Customer',
+            html: `<div class="card-body">
                                 <div class="form-group">
                                     <label for="customerName">Customer Name</label>
                                     <input type="text" class="form-control" id="customerName" placeholder="Enter Customer Name">
@@ -128,113 +129,116 @@
                                     <input type="text" class="form-control" id="contactPhone" placeholder="Enter Contact Phone">
                                 </div>
                         </div>`,
-                showCancelButton: true,
-                confirmButtonText: 'Save',
-                showLoaderOnConfirm: true,
-                preConfirm: () => {
-                    var customerName = $("#customerName").val();
-                    var contactPerson = $("#contactPerson").val();
-                    var contactEmail = $("#contactEmail").val();
-                    var contactPhone = $("#contactPhone").val();
-                    if (customerName == "" || contactPerson == "" || contactEmail == "" || contactPhone == "") {
-                        Swal.showValidationMessage(`Please fill all the fields`);
-                    }
-                    else {
-                        var data = {
-                            customerName: customerName,
-                            contactPerson: contactPerson,
-                            contactEmail: contactEmail,
-                            contactPhone: contactPhone
-                        };
-                        return $.ajax({
-                            url: `${userInfo.apiUrl}customers`,
-                            type: "POST",
-                            dataType: "json",
-                            contentType: "application/json",
-                            data: JSON.stringify(data),
-                            success: function (response) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Add New Customer Successfully',
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                })
-                                dataTable.table.row.add(response).draw();
-                            },
-                            error: function (xhr) {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Add New Customer Failed',
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                })
-                            }
-                        });
-                    }
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                var customerName = $("#customerName").val();
+                var contactPerson = $("#contactPerson").val();
+                var contactEmail = $("#contactEmail").val();
+                var contactPhone = $("#contactPhone").val();
+                if (customerName == "" || contactPerson == "" || contactEmail == "" || contactPhone == "") {
+                    Swal.showValidationMessage(`Please fill all the fields`);
                 }
-            });
-        });
-
-        // Delete Customer
-        function deleteCustomer(customerId) {
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#DD6B55',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.value) {
-                    $.ajax({
-                        url: `${userInfo.apiUrl}customers/${customerId}`,
-                        type: "DELETE",
+                else {
+                    var data = {
+                        customerName: customerName,
+                        contactPerson: contactPerson,
+                        contactEmail: contactEmail,
+                        contactPhone: contactPhone
+                    };
+                    return $.ajax({
+                        url: `${userInfo.apiUrl}customers`,
+                        headers: { 'Authorization': `Bearer ${userInfo.token}` },
+                        type: "POST",
                         dataType: "json",
                         contentType: "application/json",
+                        data: JSON.stringify(data),
                         success: function (response) {
                             Swal.fire({
                                 icon: 'success',
-                                title: 'Delete Customer Successfully',
+                                title: 'Add New Customer Successfully',
                                 showConfirmButton: false,
                                 timer: 1500
                             })
-                            dataTable.table.row($(`tr[data-id=${customerId}]`)).remove().draw();
+                            dataTable.table.row.add(response).draw();
                         },
                         error: function (xhr) {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Delete Customer Failed',
+                                title: 'Add New Customer Failed',
                                 showConfirmButton: false,
                                 timer: 1500
                             })
                         }
                     });
                 }
-            })
-        }
+            }
+        });
+    });
 
-        // Edit Customer
-        async function editCustomer(customerId) {
-            // get customer by customerId
-            let customer = await $.ajax({
-                url: `${userInfo.apiUrl}customers/${customerId}`,
-                type: "GET",
-                dataType: "json",
-                contentType: "application/json"
-            });
-            if (!customer) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Edit Customer Failed',
-                    showConfirmButton: false,
-                    timer: 1500
-                })
-                return;
-            };
+    // Delete Customer
+    function deleteCustomer(customerId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DD6B55',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: `${userInfo.apiUrl}customers/${customerId}`,
+                    headers: { 'Authorization': `Bearer ${userInfo.token}` },
+                    type: "DELETE",
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Delete Customer Successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        dataTable.table.row($(`tr[data-id=${customerId}]`)).remove().draw();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Delete Customer Failed',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                });
+            }
+        })
+    }
+
+    // Edit Customer
+    async function editCustomer(customerId) {
+        // get customer by customerId
+        let customer = await $.ajax({
+            url: `${userInfo.apiUrl}customers/${customerId}`,
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json"
+        });
+        if (!customer) {
             Swal.fire({
-                title: 'Edit Customer',
-                html: `<div class="card-body">
+                icon: 'error',
+                title: 'Edit Customer Failed',
+                showConfirmButton: false,
+                timer: 1500
+            })
+            return;
+        };
+        Swal.fire({
+            title: 'Edit Customer',
+            html: `<div class="card-body">
                                 <div class="form-group">
                                     <label for="customerName">Customer Name</label>
                                     <input type="text" class="form-control" id="customerName" placeholder="Enter Customer Name" value="${customer.customerName}">
@@ -252,50 +256,51 @@
                                     <input type="text" class="form-control" id="contactPhone" placeholder="Enter Contact Phone" value="${customer.contactPhone}">
                                 </div>
                         </div>`,
-                focusConfirm: false,
-                preConfirm: () => {
-                    var customerName = $("#customerName").val();
-                    var contactPerson = $("#contactPerson").val();
-                    var contactEmail = $("#contactEmail").val();
-                    var contactPhone = $("#contactPhone").val();
-                    if (customerName == "" || contactPerson == "" || contactEmail == "" || contactPhone == "") {
-                        Swal.showValidationMessage(`Please fill all the fields`);
-                    }
-                    else {
-                        var data = {
-                            customerId: customerId,
-                            customerName: customerName,
-                            contactPerson: contactPerson,
-                            contactEmail: contactEmail,
-                            contactPhone: contactPhone
-                        };
-                        return $.ajax({
-                            url: `${userInfo.apiUrl}customers/${customerId}`,
-                            type: "PUT",
-                            dataType: "json",
-                            contentType: "application/json",
-                            data: JSON.stringify(data),
-                            success: function (response) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Edit Customer Successfully',
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                })
-                                dataTable.table.row(`tr[data-id=${customerId}]`).data(response).draw();
-                            },
-                            error: function (xhr) {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Edit Customer Failed',
-                                    showConfirmButton: false,
-                                    timer: 1500
-                                })
-                            }
-                        });
-                    }
+            focusConfirm: false,
+            preConfirm: () => {
+                var customerName = $("#customerName").val();
+                var contactPerson = $("#contactPerson").val();
+                var contactEmail = $("#contactEmail").val();
+                var contactPhone = $("#contactPhone").val();
+                if (customerName == "" || contactPerson == "" || contactEmail == "" || contactPhone == "") {
+                    Swal.showValidationMessage(`Please fill all the fields`);
                 }
-            })
-        }
-    </script>
+                else {
+                    var data = {
+                        customerId: customerId,
+                        customerName: customerName,
+                        contactPerson: contactPerson,
+                        contactEmail: contactEmail,
+                        contactPhone: contactPhone
+                    };
+                    return $.ajax({
+                        url: `${userInfo.apiUrl}customers/${customerId}`,
+                        headers: { 'Authorization': `Bearer ${userInfo.token}` },
+                        type: "PUT",
+                        dataType: "json",
+                        contentType: "application/json",
+                        data: JSON.stringify(data),
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Edit Customer Successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            dataTable.table.row(`tr[data-id=${customerId}]`).data(response).draw();
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Edit Customer Failed',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    });
+                }
+            }
+        })
+    }
+</script>
 }

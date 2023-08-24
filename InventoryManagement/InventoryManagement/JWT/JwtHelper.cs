@@ -41,7 +41,6 @@ namespace InventoryManagement.JWT
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-
         public UserInfo? ValidateToken(string token)
         {
             if (token == null) return null;

@@ -2,6 +2,7 @@
 using InventoryManagement.Models;
 using InventoryManagement.Utils;
 using JqueryDataTables;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace InventoryManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CategoriesController : BaseControllerCustom
     {
         private readonly InventoryManagementContext _context;
@@ -47,6 +49,7 @@ namespace InventoryManagement.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize("admin")]
         public async Task<ActionResult<Category>> PostCategory(CategoryDTO category)
         {
             if (_context.Categories == null)
@@ -61,6 +64,7 @@ namespace InventoryManagement.Controllers
         }
 
         [HttpPut("{id}")]
+        [CustomAuthorize("admin")]
         public async Task<IActionResult> PutCategory(int id, CategoryDTO category)
         {
             if (id != category.CategoryId)
@@ -90,6 +94,7 @@ namespace InventoryManagement.Controllers
         }
 
         [HttpDelete("{id}")]
+        [CustomAuthorize("admin")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             try

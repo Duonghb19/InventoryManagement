@@ -2,6 +2,7 @@
 using InventoryManagement.Models;
 using InventoryManagement.Utils;
 using JqueryDataTables;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace InventoryManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class WarehousesController : BaseControllerCustom
     {
         private readonly InventoryManagementContext _context;
@@ -44,6 +46,7 @@ namespace InventoryManagement.Controllers
         }
 
         [HttpPut("{id}")]
+        [CustomAuthorize("admin")]
         public async Task<IActionResult> PutWarehouse(int id, WarehouseDTO warehouse)
         {
             if (id != warehouse.WarehouseId)
@@ -71,6 +74,7 @@ namespace InventoryManagement.Controllers
         }
 
         [HttpPost]
+        [CustomAuthorize("admin")]
         public async Task<ActionResult<Warehouse>> PostWarehouse(WarehouseDTO warehouse)
         {
             if (_context.Warehouses == null)
@@ -86,6 +90,7 @@ namespace InventoryManagement.Controllers
         }
 
         [HttpDelete("{id}")]
+        [CustomAuthorize("admin")]
         public async Task<IActionResult> DeleteWarehouse(int id)
         {
             if (_context.Warehouses == null)

@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace InventoryManagementClient.Controllers
 {
-    [RoleCheck("admin")]
+    [RoleCheck("all")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;

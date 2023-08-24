@@ -44,6 +44,7 @@ Layout = "_AdminLayout";
                 scrollY: "calc(100vh - 400px)",
                 ajax: {
                     url: `${userInfo.apiUrl}warehouses/getwarehouses`,
+                    headers: { 'Authorization': `Bearer ${userInfo.token}` },
                     type: "POST"
                 },
                 columns: [
@@ -132,6 +133,7 @@ Layout = "_AdminLayout";
                     };
                     return $.ajax({
                         url: `${userInfo.apiUrl}warehouses`,
+                        headers: { 'Authorization': `Bearer ${userInfo.token}` },
                         type: "POST",
                         dataType: "json",
                         contentType: "application/json",
@@ -173,6 +175,7 @@ Layout = "_AdminLayout";
             if (result.value) {
                 $.ajax({
                     url: `${userInfo.apiUrl}warehouses/${warehouseId}`,
+                    headers: { 'Authorization': `Bearer ${userInfo.token}` },
                     type: "DELETE",
                     dataType: "json",
                     contentType: "application/json",
@@ -203,6 +206,7 @@ Layout = "_AdminLayout";
         // get warehouse by warehouseId
         let warehouse = await $.ajax({
             url: `${userInfo.apiUrl}warehouses/${warehouseId}`,
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
             type: "GET",
             dataType: "json",
             contentType: "application/json"
@@ -243,6 +247,7 @@ Layout = "_AdminLayout";
                     };
                     return $.ajax({
                         url: `${userInfo.apiUrl}warehouses/${warehouseId}`,
+                        headers: { 'Authorization': `Bearer ${userInfo.token}` },
                         type: "PUT",
                         dataType: "json",
                         contentType: "application/json",

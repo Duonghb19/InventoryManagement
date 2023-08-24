@@ -8,6 +8,7 @@ Layout = "_AdminLayout";
     $('.js-data-example-ajax').select2({
         ajax: {
             url: `${userInfo.apiUrl}Warehouses/GetWarehouses`,
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
             type: "POST",
             data: function (params) {
                 let formData = new FormData();

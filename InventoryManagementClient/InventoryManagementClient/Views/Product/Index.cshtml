@@ -47,6 +47,7 @@ Layout = "_AdminLayout";
                 scrollY: "calc(100vh - 400px)",
                 ajax: {
                     url: `${userInfo.apiUrl}products/getproducts`,
+                    headers: { 'Authorization': `Bearer ${userInfo.token}` },
                     type: "POST"
                 },
                 columns: [
@@ -155,6 +156,7 @@ Layout = "_AdminLayout";
                 $('#warehouseName').select2({
                     ajax: {
                         url: `${userInfo.apiUrl}Warehouses/GetWarehouses`,
+                        headers: { 'Authorization': `Bearer ${userInfo.token}` },
                         type: "POST",
                         data: function (params) {
                             let formData = new FormData();
@@ -191,6 +193,7 @@ Layout = "_AdminLayout";
                 $('#categoryName').select2({
                     ajax: {
                         url: `${userInfo.apiUrl}Categories/GetCategories`,
+                        headers: { 'Authorization': `Bearer ${userInfo.token}` },
                         type: "POST",
                         data: function (params) {
                             let formData = new FormData();
@@ -246,6 +249,7 @@ Layout = "_AdminLayout";
                     };
                     return $.ajax({
                         url: `${userInfo.apiUrl}products`,
+                        headers: { 'Authorization': `Bearer ${userInfo.token}` },
                         type: "POST",
                         dataType: "json",
                         contentType: "application/json",
@@ -287,6 +291,7 @@ Layout = "_AdminLayout";
             if (result.value) {
                 $.ajax({
                     url: `${userInfo.apiUrl}products/${productId}`,
+                    headers: { 'Authorization': `Bearer ${userInfo.token}` },
                     type: "DELETE",
                     dataType: "json",
                     contentType: "application/json",
@@ -350,6 +355,7 @@ Layout = "_AdminLayout";
                 $('#editWarehouseName').select2({
                     ajax: {
                         url: `${userInfo.apiUrl}Warehouses/GetWarehouses`,
+                        headers: { 'Authorization': `Bearer ${userInfo.token}` },
                         type: "POST",
                         data: function (params) {
                             let formData = new FormData();
@@ -387,6 +393,7 @@ Layout = "_AdminLayout";
                 $('#editCategoryName').select2({
                     ajax: {
                         url: `${userInfo.apiUrl}Categories/GetCategories`,
+                        headers: { 'Authorization': `Bearer ${userInfo.token}` },
                         type: "POST",
                         data: function (params) {
                             let formData = new FormData();
@@ -423,6 +430,7 @@ Layout = "_AdminLayout";
                 // Load existing product data into the form
                 $.ajax({
                     url: `${userInfo.apiUrl}products/${productId}`,
+                    headers: { 'Authorization': `Bearer ${userInfo.token}` },
                     type: "GET",
                     dataType: "json",
                     success: function (product) {
@@ -469,6 +477,7 @@ Layout = "_AdminLayout";
                     };
                     return $.ajax({
                         url: `${userInfo.apiUrl}products/${productId}`,
+                        headers: { 'Authorization': `Bearer ${userInfo.token}` },
                         type: "PUT",
                         dataType: "json",
                         contentType: "application/json",

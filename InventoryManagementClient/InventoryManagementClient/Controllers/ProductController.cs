@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryManagementClient.Controllers
 {
+    [RoleCheck("all")]
     public class ProductController : Controller
     {
         [RoleCheck("admin")]

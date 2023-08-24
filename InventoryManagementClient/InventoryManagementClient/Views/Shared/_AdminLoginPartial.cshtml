@@ -38,7 +38,7 @@
         @if (userInfo.Role.ToLower() == "admin")
         {
             <li>
-                <a class="links link-active" href="/Dashboard/Index">
+                <a class="links link-active" href="/">
                     <span class="fas fa-tachometer-alt mr-2"></span>
                     Dashboard
                 </a>
@@ -86,12 +86,12 @@
                     Outgoing Orders
                 </a>
             </li>
-            <li>
+           @* <li>
                 <a class="links link-active" href="/User/Index">
                     <span class="fas fa-users mr-2"></span>
                     Users
                 </a>
-            </li>
+            </li>*@
         }
     </ul>
 }
