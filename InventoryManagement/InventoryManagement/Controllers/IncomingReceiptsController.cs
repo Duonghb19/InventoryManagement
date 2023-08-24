@@ -1,6 +1,7 @@
 ﻿using InventoryManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using InventoryManagement.Models.DTO;
 
 namespace InventoryManagement.Controllers
 {
@@ -15,34 +16,124 @@ namespace InventoryManagement.Controllers
             _context = context;
         }
 
-        // GET: api/IncomingReceipts
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<IncomingReceipt>>> GetIncomingReceipts()
+        [HttpPost("add-products")]
+        public async Task<IActionResult> AddProductsToIncomingReceipt([FromBody] AddIncomingReceiptDTO incomingReceiptDTO)
         {
-            if (_context.IncomingReceipts == null)
+            try
             {
-                return NotFound();
+                if (incomingReceiptDTO == null || incomingReceiptDTO.Details == null || incomingReceiptDTO.Details.Count == 0)
+                {
+                    return BadRequest("Invalid data");
+                }
+
+                var supplier = await _context.Suppliers.FindAsync(incomingReceiptDTO.SupplierId);
+                if (supplier == null)
+                {
+                    return BadRequest("Invalid supplier");
+                }
+
+                var warehouse = await _context.Warehouses.FindAsync(incomingReceiptDTO.WarehouseId);
+                if (warehouse == null)
+                {
+                    return BadRequest("Invalid warehouse");
+                }
+
+                var totalAmount = incomingReceiptDTO.Details.Sum(detailDTO => (detailDTO.Quantity) * (detailDTO.PurchasePrice));
+
+                var incomingReceipt = new IncomingReceipt
+                {
+                    Supplier = supplier,
+                    Warehouse = warehouse,
+                    ReceiptDate = DateTime.Now,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = incomingReceiptDTO.CreatedBy,
+                    ModifiedDate = DateTime.Now,
+                    ModifiedBy = incomingReceiptDTO.ModifiedBy,
+                    TotalAmount = totalAmount,
+                    IncomingReceiptDetails = incomingReceiptDTO.Details.Select(detailDTO =>
+                    {
+                        var product = _context.Products.Find(detailDTO.ProductId);
+                        if (product == null)
+                        {
+                            throw new ArgumentException($"Invalid product ID: {detailDTO.ProductId}");
+                        }
+
+                        if (detailDTO.Quantity == null)
+                        {
+                            throw new ArgumentException("Quantity is required");
+                        }
+
+                        if (detailDTO.PurchasePrice == null)
+                        {
+                            throw new ArgumentException("Purchase price is required");
+                        }
+
+                        return new IncomingReceiptDetail
+                        {
+                            Product = product,
+                            Quantity = detailDTO.Quantity,
+                            PurchasePrice = detailDTO.PurchasePrice,
+                            CreatedDate = DateTime.Now
+                        };
+                    }).ToList()
+                };
+
+                _context.IncomingReceipts.Add(incomingReceipt);
+                await _context.SaveChangesAsync();
+
+                return Ok("Products added to incoming receipt successfully.");
             }
-            return await _context.IncomingReceipts.ToListAsync();
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
 
-        // GET: api/IncomingReceipts/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<IncomingReceipt>> GetIncomingReceipt(int id)
+
+
+
+
+        [HttpGet("list")]
+        public IActionResult GetIncomingReceipts()
         {
-            if (_context.IncomingReceipts == null)
+            try
             {
-                return NotFound();
-            }
-            var incomingReceipt = await _context.IncomingReceipts.FindAsync(id);
+                var incomingReceipts = _context.IncomingReceipts
+                    .Include(r => r.Supplier)
+                    .Include(r => r.Warehouse)
+                    .Include(r => r.IncomingReceiptDetails)
+                        .ThenInclude(detail => detail.Product)
+                    .ToList();
 
-            if (incomingReceipt == null)
+                var incomingReceiptDTOs = incomingReceipts.Select(receipt => new IncomingReceiptDTO
+                {
+                    ReceiptId = receipt.ReceiptId,
+                    SupplierId = receipt.SupplierId,
+                    SupplierName = receipt.Supplier?.SupplierName ?? "Unknown Supplier",
+                    WarehouseId = receipt.WarehouseId,
+                    WarehouseName = receipt.Warehouse?.WarehouseName ?? "Unknown Warehouse",
+                    ReceiptDate = receipt.ReceiptDate,
+                    CreatedBy = receipt.CreatedBy,
+                    TotalAmount = receipt.TotalAmount,
+                    Details = receipt.IncomingReceiptDetails.Select(detail => new IncomingReceiptDetailDTO
+                    {
+                        DetailId = detail.DetailId,
+                        ProductId = detail.ProductId,
+                        ProductName = detail.Product?.ProductName ?? "Unknown Product",
+                        Quantity = detail.Quantity ?? 0,
+                        PurchasePrice = detail.PurchasePrice ?? 0
+                    }).ToList()
+                }).ToList();
+
+                return Ok(incomingReceiptDTOs);
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
-
-            return incomingReceipt;
         }
+
+
 
         // PUT: api/IncomingReceipts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

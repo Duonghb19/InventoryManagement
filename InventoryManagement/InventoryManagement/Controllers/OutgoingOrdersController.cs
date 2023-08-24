@@ -1,7 +1,7 @@
 ﻿using InventoryManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using InventoryManagement.Models.DTO;
 namespace InventoryManagement.Controllers
 {
     [Route("api/[controller]")]
@@ -16,15 +16,97 @@ namespace InventoryManagement.Controllers
         }
 
         // GET: api/OutgoingOrders
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<OutgoingOrder>>> GetOutgoingOrders()
+        [HttpPost("create-order")]
+        public async Task<IActionResult> CreateOutgoingOrder([FromBody] CreateOutgoingOrderDTO outgoingOrderDTO)
         {
-            if (_context.OutgoingOrders == null)
+            using var transaction = _context.Database.BeginTransaction();
+
+            try
             {
-                return NotFound();
+                if (outgoingOrderDTO == null || outgoingOrderDTO.Details == null || outgoingOrderDTO.Details.Count == 0)
+                {
+                    return BadRequest("Invalid data");
+                }
+
+                var customer = await _context.Customers.FindAsync(outgoingOrderDTO.CustomerId);
+                if (customer == null)
+                {
+                    return BadRequest("Invalid customer");
+                }
+
+                var warehouse = await _context.Warehouses.FindAsync(outgoingOrderDTO.WarehouseId);
+                if (warehouse == null)
+                {
+                    return BadRequest("Invalid warehouse");
+                }
+
+                // Calculate total amount
+                var totalAmount = outgoingOrderDTO.Details.Sum(detailDTO => (detailDTO.Quantity ?? 0) * (detailDTO.SalePrice ?? 0));
+
+                var outgoingOrder = new OutgoingOrder
+                {
+                    Customer = customer,
+                    Warehouse = warehouse,
+                    OrderDate = DateTime.Now,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = outgoingOrderDTO.CreatedBy,
+                    ModifiedDate = DateTime.Now,
+                    ModifiedBy = outgoingOrderDTO.ModifiedBy,
+                    TotalAmount = totalAmount,
+                    OutgoingOrderDetails = outgoingOrderDTO.Details.Select(detailDTO =>
+                    {
+                        var product = _context.Products.Find(detailDTO.ProductId);
+                        if (product == null)
+                        {
+                            throw new ArgumentException($"Invalid product ID: {detailDTO.ProductId}");
+                        }
+
+                        if (detailDTO.Quantity == null)
+                        {
+                            throw new ArgumentException("Quantity is required");
+                        }
+
+                        if (detailDTO.SalePrice == null)
+                        {
+                            throw new ArgumentException("Sale price is required");
+                        }
+
+                        if (product.QuantityInStock < detailDTO.Quantity)
+                        {
+                            throw new ArgumentException($"Insufficient quantity in stock for product ID: {detailDTO.ProductId}");
+                        }
+
+                        // Create outgoing order detail
+                        var outgoingOrderDetail = new OutgoingOrderDetail
+                        {
+                            Product = product,
+                            Quantity = detailDTO.Quantity,
+                            SalePrice = detailDTO.SalePrice,
+                            Warehouse = warehouse,
+                            CreatedDate = DateTime.Now
+                        };
+
+                        // Update QuantityInStock in Product
+                        product.QuantityInStock -= detailDTO.Quantity.Value;
+
+                        return outgoingOrderDetail;
+                    }).ToList()
+                };
+
+                _context.OutgoingOrders.Add(outgoingOrder);
+                await _context.SaveChangesAsync();
+
+                transaction.Commit();
+
+                return Ok("Outgoing order created successfully.");
             }
-            return await _context.OutgoingOrders.ToListAsync();
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
+
 
         // GET: api/OutgoingOrders/5
         [HttpGet("{id}")]
@@ -75,19 +157,44 @@ namespace InventoryManagement.Controllers
             return NoContent();
         }
 
-        // POST: api/OutgoingOrders
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<OutgoingOrder>> PostOutgoingOrder(OutgoingOrder outgoingOrder)
+        [HttpGet("list")]
+        public IActionResult GetOutgoingOrders()
         {
-            if (_context.OutgoingOrders == null)
+            try
             {
-                return Problem("Entity set 'InventoryManagementContext.OutgoingOrders'  is null.");
-            }
-            _context.OutgoingOrders.Add(outgoingOrder);
-            await _context.SaveChangesAsync();
+                var outgoingOrders = _context.OutgoingOrders
+                    .Include(o => o.Customer)
+                    .Include(o => o.Warehouse)
+                    .Include(o => o.OutgoingOrderDetails)
+                        .ThenInclude(detail => detail.Product)
+                    .ToList();
 
-            return CreatedAtAction("GetOutgoingOrder", new { id = outgoingOrder.OrderId }, outgoingOrder);
+                var outgoingOrderDTOs = outgoingOrders.Select(order => new LIstOutgoingOrderDTO
+                {
+                    OrderId = order.OrderId,
+                    CustomerId = order.CustomerId,
+                    CustomerName = order.Customer?.CustomerName,
+                    WarehouseId = order.WarehouseId,
+                    CreatedBy = order.CreatedBy,
+                    WarehouseName = order.Warehouse?.WarehouseName,
+                    OrderDate = order.OrderDate,
+                    TotalAmount = order.TotalAmount,
+                    Details = order.OutgoingOrderDetails.Select(detail => new ListOutgoingOrderDetailDTO
+                    {
+                        DetailId = detail.DetailId,
+                        ProductId = detail.ProductId,
+                        ProductName = detail.Product?.ProductName,
+                        Quantity = detail.Quantity,
+                        SalePrice = detail.SalePrice
+                    }).ToList()
+                }).ToList();
+
+                return Ok(outgoingOrderDTOs);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
         }
 
         // DELETE: api/OutgoingOrders/5
