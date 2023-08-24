@@ -14,15 +14,15 @@ Layout = "_AdminLayout";
         </div>
     </div>
     <div class="card card-body">
-        <table id="data-table" class="table table-sm table-bordered">
+        <table id="product-table" class="table table-sm table-bordered">
             <thead>
                 <tr>
-                    <th>Product Name</th>
-                    <th>Category Name</th>
-                    <th>Quantity In Stock</th>
-                    <th>Purchase Price</th>
-                    <th>Sale Price</th>
-                    <th>Warehouse Name</th>
+                    <th data-type="text">Product Name</th>
+                    <th data-type="text">Category Name</th>
+                    <th data-type="number">Quantity In Stock</th>
+                    <th data-type="number">Purchase Price</th>
+                    <th data-type="number">Sale Price</th>
+                    <th data-type="text">Warehouse Name</th>
                     <th style="width:50px">Edit</th>
                     <th style="width:50px">Delete</th>
                 </tr>
@@ -39,7 +39,7 @@ Layout = "_AdminLayout";
     var dataTable = {
         table: null,
         init: function () {
-            dataTable.table = $("#data-table").DataTable({
+            dataTable.table = $("#product-table").DataTable({
                 searchDelay: 500,
                 processing: true,
                 serverSide: true,
@@ -104,7 +104,6 @@ Layout = "_AdminLayout";
                     }
                 ],
                 columnDefs: [
-                    { 'searchable': false, 'targets': [6, 7] },
                     { 'sortable': false, 'targets': [6, 7] },
                     { 'className': "text-left", "targets": [0, 1, 5] },
                     { 'className': "text-right", "targets": [2, 3, 4] }
@@ -119,196 +118,382 @@ Layout = "_AdminLayout";
         }
     }
 
-        // // Add New Product
-        // $("#addNewProduct").click(function () {
-        //     Swal.fire({
-        //         title: 'Add New Product',
-        //         html: `<div class="card-body">
-        //                     <div class="form-group">
-        //                         <label for="customerName">Product Name</label>
-        //                         <input type="text" class="form-control" id="customerName" placeholder="Enter Product Name">
-        //                     </div>
-        //                     <div class="form-group">
-        //                         <label for="contactPerson">Contact Person</label>
-        //                         <input type="text" class="form-control" id="contactPerson" placeholder="Enter Contact Person">
-        //                     </div>
-        //                     <div class="form-group">
-        //                         <label for="contactEmail">Contact Email</label>
-        //                         <input type="email" class="form-control" id="contactEmail" placeholder="Enter Contact Email">
-        //                     </div>
-        //                     <div class="form-group">
-        //                         <label for="contactPhone">Contact Phone</label>
-        //                         <input type="text" class="form-control" id="contactPhone" placeholder="Enter Contact Phone">
-        //                     </div>
-        //             </div>`,
-        //         showCancelButton: true,
-        //         confirmButtonText: 'Save',
-        //         showLoaderOnConfirm: true,
-        //         preConfirm: () => {
-        //             var customerName = $("#customerName").val();
-        //             var contactPerson = $("#contactPerson").val();
-        //             var contactEmail = $("#contactEmail").val();
-        //             var contactPhone = $("#contactPhone").val();
-        //             if (customerName == "" || contactPerson == "" || contactEmail == "" || contactPhone == "") {
-        //                 Swal.showValidationMessage(`Please fill all the fields`);
-        //             }
-        //             else {
-        //                 var data = {
-        //                     customerName: customerName,
-        //                     contactPerson: contactPerson,
-        //                     contactEmail: contactEmail,
-        //                     contactPhone: contactPhone
-        //                 };
-        //                 return $.ajax({
-        //                     url: `${userInfo.apiUrl}customers`,
-        //                     type: "POST",
-        //                     dataType: "json",
-        //                     contentType: "application/json",
-        //                     data: JSON.stringify(data),
-        //                     success: function (response) {
-        //                         Swal.fire({
-        //                             icon: 'success',
-        //                             title: 'Add New Product Successfully',
-        //                             showConfirmButton: false,
-        //                             timer: 1500
-        //                         })
-        //                         dataTable.table.row.add(response).draw();
-        //                     },
-        //                     error: function (xhr) {
-        //                         Swal.fire({
-        //                             icon: 'error',
-        //                             title: 'Add New Product Failed',
-        //                             showConfirmButton: false,
-        //                             timer: 1500
-        //                         })
-        //                     }
-        //                 });
-        //             }
-        //         }
-        //     });
-        // });
+    // Add New Product
+    $("#addNewProduct").click(function () {
+        Swal.fire({
+            title: 'Add New Product',
+            html: `<div class="card-body">
+                        <div class="form-group">
+                            <label for="productName">Product Name</label>
+                            <input type="text" class="form-control" id="productName" placeholder="Enter Product Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryName">Category Name</label>
+                            <select id="categoryName" class="form-control"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantityInStock">Quantity In Stock</label>
+                            <input type="text" class="form-control" id="quantityInStock" placeholder="Enter Quantity In Stock">
+                        </div>
+                        <div class="form-group">
+                            <label for="purchasePrice">Purchase Price</label>
+                            <input type="text" class="form-control" id="purchasePrice" placeholder="Enter Purchase Price">
+                        </div>
+                        <div class="form-group">
+                            <label for="salePrice">Sale Price</label>
+                            <input type="text" class="form-control" id="salePrice" placeholder="Enter Sale Price">
+                        </div>
+                        <div class="form-group">
+                            <label for="warehouseName">Warehouse Name</label>
+                            <select id="warehouseName" class="form-control"></select>
+                        </div>
+                </div>`,
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            showLoaderOnConfirm: true,
+            didOpen: function () {
+                $('#warehouseName').select2({
+                    ajax: {
+                        url: `${userInfo.apiUrl}Warehouses/GetWarehouses`,
+                        type: "POST",
+                        data: function (params) {
+                            let formData = new FormData();
+                            formData.append("search.value", params.term || "");
+                            formData.append("start", (params.page || 0) * 10);
+                            formData.append("length", 10);
+                            formData.append("draw", 1);
+                            formData.append("columns[0][data]", "WarehouseName");
+                            formData.append("columns[0][searchable]", true);
+                            return formData;
+                        },
+                        processResults: function (data) {
+                            let results = data.data.reduce((accumulator, currentValue) => {
+                                accumulator.push({
+                                    id: currentValue.warehouseId,
+                                    text: currentValue.warehouseName
+                                });
+                                return accumulator;
+                            }, []);
+                            return {
+                                results: results,
+                                pagination: {
+                                    more: data.data.length == 10
+                                }
+                            };
+                        },
+                        contentType: false,
+                        processData: false,
+                        cache: true,
+                        delay: 250,
+                    },
+                    dropdownParent: $(".swal2-popup")
+                });
+                $('#categoryName').select2({
+                    ajax: {
+                        url: `${userInfo.apiUrl}Categories/GetCategories`,
+                        type: "POST",
+                        data: function (params) {
+                            let formData = new FormData();
+                            formData.append("search.value", params.term || "");
+                            formData.append("start", (params.page || 0) * 10);
+                            formData.append("length", 10);
+                            formData.append("draw", 1);
+                            formData.append("columns[0][data]", "CategoryName");
+                            formData.append("columns[0][searchable]", true);
+                            return formData;
+                        },
+                        processResults: function (data) {
+                            let results = data.data.reduce((accumulator, currentValue) => {
+                                accumulator.push({
+                                    id: currentValue.categoryId,
+                                    text: currentValue.categoryName
+                                });
+                                return accumulator;
+                            }, []);
+                            return {
+                                results: results,
+                                pagination: {
+                                    more: data.data.length == 10
+                                }
+                            };
+                        },
+                        contentType: false,
+                        processData: false,
+                        cache: true,
+                        delay: 250,
+                    },
+                    dropdownParent: $(".swal2-popup"),
+                });
+            },
+            preConfirm: () => {
+                var productName = $("#productName").val();
+                var categoryId = $("#categoryName").val();
+                var quantityInStock = $("#quantityInStock").val();
+                var purchasePrice = $("#purchasePrice").val();
+                var salePrice = $("#salePrice").val();
+                var warehouseId = $("#warehouseName").val();
+                if (productName == "" || categoryId == "" || quantityInStock == "" || purchasePrice == "" || salePrice == "" || warehouseId == "") {
+                    Swal.showValidationMessage(`Please fill all the fields`);
+                }
+                else {
+                    var data = {
+                        productName: productName,
+                        categoryId: categoryId,
+                        quantityInStock: quantityInStock,
+                        purchasePrice: purchasePrice,
+                        salePrice: salePrice,
+                        warehouseId: warehouseId
+                    };
+                    return $.ajax({
+                        url: `${userInfo.apiUrl}products`,
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json",
+                        data: JSON.stringify(data),
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Add Product Successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            dataTable.table.row.add(response).draw();
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Add Product Failed',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    });
+                }
+            }
+        });
+    });
 
-        // // Delete Product
-        // function deleteCustomer(customerId) {
-        //     Swal.fire({
-        //         title: 'Are you sure?',
-        //         text: "You won't be able to revert this!",
-        //         icon: 'warning',
-        //         showCancelButton: true,
-        //         confirmButtonColor: '#DD6B55',
-        //         cancelButtonColor: '#d33',
-        //         confirmButtonText: 'Yes, delete it!'
-        //     }).then((result) => {
-        //         if (result.value) {
-        //             $.ajax({
-        //                 url: `${userInfo.apiUrl}customers/${customerId}`,
-        //                 type: "DELETE",
-        //                 dataType: "json",
-        //                 contentType: "application/json",
-        //                 success: function (response) {
-        //                     Swal.fire({
-        //                         icon: 'success',
-        //                         title: 'Delete Product Successfully',
-        //                         showConfirmButton: false,
-        //                         timer: 1500
-        //                     })
-        //                     dataTable.table.row($(`tr[data-id=${customerId}]`)).remove().draw();
-        //                 },
-        //                 error: function (xhr) {
-        //                     Swal.fire({
-        //                         icon: 'error',
-        //                         title: 'Delete Product Failed',
-        //                         showConfirmButton: false,
-        //                         timer: 1500
-        //                     })
-        //                 }
-        //             });
-        //         }
-        //     })
-        // }
+    // Delete Product
+    function deleteProduct(productId) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DD6B55',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: `${userInfo.apiUrl}products/${productId}`,
+                    type: "DELETE",
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Delete Product Successfully',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                        dataTable.table.row(`[data-id=${productId}]`).remove().draw();
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Delete Product Failed',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                });
+            }
+        })
+    }
 
-        // // Edit Product
-        // async function editCustomer(customerId) {
-        //     // get customer by customerId
-        //     let customer = await $.ajax({
-        //         url: `${userInfo.apiUrl}customers/${customerId}`,
-        //         type: "GET",
-        //         dataType: "json",
-        //         contentType: "application/json"
-        //     });
-        //     if (!customer) {
-        //         Swal.fire({
-        //             icon: 'error',
-        //             title: 'Edit Product Failed',
-        //             showConfirmButton: false,
-        //             timer: 1500
-        //         })
-        //         return;
-        //     };
-        //     Swal.fire({
-        //         title: 'Edit Product',
-        //         html: `<div class="card-body">
-        //                     <div class="form-group">
-        //                         <label for="customerName">Product Name</label>
-        //                         <input type="text" class="form-control" id="customerName" placeholder="Enter Product Name" value="${customer.customerName}">
-        //                     </div>
-        //                     <div class="form-group">
-        //                         <label for="contactPerson">Contact Person</label>
-        //                         <input type="text" class="form-control" id="contactPerson" placeholder="Enter Contact Person" value="${customer.contactPerson}">
-        //                     </div>
-        //                     <div class="form-group">
-        //                         <label for="contactEmail">Contact Email</label>
-        //                         <input type="email" class="form-control" id="contactEmail" placeholder="Enter Contact Email" value="${customer.contactEmail}">
-        //                     </div>
-        //                     <div class="form-group">
-        //                         <label for="contactPhone">Contact Phone</label>
-        //                         <input type="text" class="form-control" id="contactPhone" placeholder="Enter Contact Phone" value="${customer.contactPhone}">
-        //                     </div>
-        //             </div>`,
-        //         focusConfirm: false,
-        //         preConfirm: () => {
-        //             var customerName = $("#customerName").val();
-        //             var contactPerson = $("#contactPerson").val();
-        //             var contactEmail = $("#contactEmail").val();
-        //             var contactPhone = $("#contactPhone").val();
-        //             if (customerName == "" || contactPerson == "" || contactEmail == "" || contactPhone == "") {
-        //                 Swal.showValidationMessage(`Please fill all the fields`);
-        //             }
-        //             else {
-        //                 var data = {
-        //                     customerId: customerId,
-        //                     customerName: customerName,
-        //                     contactPerson: contactPerson,
-        //                     contactEmail: contactEmail,
-        //                     contactPhone: contactPhone
-        //                 };
-        //                 return $.ajax({
-        //                     url: `${userInfo.apiUrl}customers/${customerId}`,
-        //                     type: "PUT",
-        //                     dataType: "json",
-        //                     contentType: "application/json",
-        //                     data: JSON.stringify(data),
-        //                     success: function (response) {
-        //                         Swal.fire({
-        //                             icon: 'success',
-        //                             title: 'Edit Product Successfully',
-        //                             showConfirmButton: false,
-        //                             timer: 1500
-        //                         })
-        //                         dataTable.table.row(`tr[data-id=${customerId}]`).data(response).draw();
-        //                     },
-        //                     error: function (xhr) {
-        //                         Swal.fire({
-        //                             icon: 'error',
-        //                             title: 'Edit Product Failed',
-        //                             showConfirmButton: false,
-        //                             timer: 1500
-        //                         })
-        //                     }
-        //                 });
-        //             }
-        //         }
-        //     })
-        // }
+    // Edit Product
+    function editProduct(productId) {
+        Swal.fire({
+            title: 'Edit Product',
+            html: `<div class="card-body text-left">
+                        <div class="form-group">
+                            <label for="editProductName">Product Name</label>
+                            <input type="text" class="form-control" id="editProductName" placeholder="Enter Product Name">
+                        </div>
+                        <div class="form-group">
+                            <label for="editCategoryName">Category Name</label>
+                            <select id="editCategoryName" class="form-control text-left"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editQuantityInStock">Quantity In Stock</label>
+                            <input type="number" class="form-control text-right" id="editQuantityInStock" placeholder="Enter Quantity In Stock">
+                        </div>
+                        <div class="form-group">
+                            <label for="editPurchasePrice">Purchase Price</label>
+                            <input type="number" class="form-control text-right" id="editPurchasePrice" placeholder="Enter Purchase Price">
+                        </div>
+                        <div class="form-group">
+                            <label for="editSalePrice">Sale Price</label>
+                            <input type="number" class="form-control text-right" id="editSalePrice" placeholder="Enter Sale Price">
+                        </div>
+                        <div class="form-group">
+                            <label for="editWarehouseName">Warehouse Name</label>
+                            <select id="editWarehouseName" class="form-control text-left"></select>
+                        </div>
+                </div>`,
+            showCancelButton: true,
+            confirmButtonText: 'Save',
+            showLoaderOnConfirm: true,
+            didOpen: function () {
+                // Load existing warehouse data into the form
+                $('#editWarehouseName').select2({
+                    ajax: {
+                        url: `${userInfo.apiUrl}Warehouses/GetWarehouses`,
+                        type: "POST",
+                        data: function (params) {
+                            let formData = new FormData();
+                            formData.append("search.value", params.term || "");
+                            formData.append("start", (params.page || 0) * 10);
+                            formData.append("length", 10);
+                            formData.append("draw", 1);
+                            formData.append("columns[0][data]", "WarehouseName");
+                            formData.append("columns[0][searchable]", true);
+                            return formData;
+                        },
+                        processResults: function (data) {
+                            let results = data.data.reduce((accumulator, currentValue) => {
+                                accumulator.push({
+                                    id: currentValue.warehouseId,
+                                    text: currentValue.warehouseName
+                                });
+                                return accumulator;
+                            }, []);
+                            return {
+                                results: results,
+                                pagination: {
+                                    more: data.data.length == 10
+                                }
+                            };
+                        },
+                        contentType: false,
+                        processData: false,
+                        cache: true,
+                        delay: 250,
+                    },
+                    dropdownParent: $(".swal2-popup")
+                });
+                // Load existing category data into the form
+                $('#editCategoryName').select2({
+                    ajax: {
+                        url: `${userInfo.apiUrl}Categories/GetCategories`,
+                        type: "POST",
+                        data: function (params) {
+                            let formData = new FormData();
+                            formData.append("search.value", params.term || "");
+                            formData.append("start", (params.page || 0) * 10);
+                            formData.append("length", 10);
+                            formData.append("draw", 1);
+                            formData.append("columns[0][data]", "CategoryName");
+                            formData.append("columns[0][searchable]", true);
+                            return formData;
+                        },
+                        processResults: function (data) {
+                            let results = data.data.reduce((accumulator, currentValue) => {
+                                accumulator.push({
+                                    id: currentValue.categoryId,
+                                    text: currentValue.categoryName
+                                });
+                                return accumulator;
+                            }, []);
+                            return {
+                                results: results,
+                                pagination: {
+                                    more: data.data.length == 10
+                                }
+                            };
+                        },
+                        contentType: false,
+                        processData: false,
+                        cache: true,
+                        delay: 250,
+                    },
+                    dropdownParent: $(".swal2-popup")
+                });
+                // Load existing product data into the form
+                $.ajax({
+                    url: `${userInfo.apiUrl}products/${productId}`,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (product) {
+                        $("#editProductName").val(product.productName);
+                        $("#editQuantityInStock").val(product.quantityInStock);
+                        $("#editPurchasePrice").val(product.purchasePrice);
+                        $("#editSalePrice").val(product.salePrice);
+                        var category = new Option(product.categoryName ?? "", product.categoryId ?? "", true, true);
+                        $('#editCategoryName').append(category).trigger('change');
+
+                        var warehouse = new Option(product.warehouseName ?? "", product.warehouseId ?? "", true, true);
+                        $('#editWarehouseName').append(warehouse).trigger('change');
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed to load product data for editing',
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+                    }
+                });
+            },
+            preConfirm: () => {
+                // Collect and submit edited product data
+                var productName = $("#editProductName").val();
+                var categoryId = $("#editCategoryName").val();
+                var quantityInStock = $("#editQuantityInStock").val();
+                var purchasePrice = $("#editPurchasePrice").val();
+                var salePrice = $("#editSalePrice").val();
+                var warehouseId = $("#editWarehouseName").val();
+                if (productName == "" || categoryId == "" || quantityInStock == "" || purchasePrice == "" || salePrice == "" || warehouseId == "") {
+                    Swal.showValidationMessage(`Please fill all the fields`);
+                }
+                else {
+                    var data = {
+                        productId: productId,
+                        productName: productName,
+                        categoryId: categoryId,
+                        quantityInStock: quantityInStock,
+                        purchasePrice: purchasePrice,
+                        salePrice: salePrice,
+                        warehouseId: warehouseId
+                    };
+                    return $.ajax({
+                        url: `${userInfo.apiUrl}products/${productId}`,
+                        type: "PUT",
+                        dataType: "json",
+                        contentType: "application/json",
+                        data: JSON.stringify(data),
+                        success: function (response) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Edit Product Successfully',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                            dataTable.table.ajax.reload();
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Edit Product Failed',
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+                        }
+                    });
+                }
+            }
+        });
+    }
 </script>
 }

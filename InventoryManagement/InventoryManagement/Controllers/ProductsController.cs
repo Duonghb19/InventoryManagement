@@ -1,4 +1,6 @@
-﻿using InventoryManagement.Models;
+﻿using AutoMapper;
+using InventoryManagement.Models;
+using InventoryManagement.Utils;
 using JqueryDataTables;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,11 +9,11 @@ namespace InventoryManagement.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController : ControllerBase
+    public class ProductsController : BaseControllerCustom
     {
         private readonly InventoryManagementContext _context;
 
-        public ProductsController(InventoryManagementContext context)
+        public ProductsController(InventoryManagementContext context, IHttpContextAccessor httpContext, IConfiguration configuration, IMapper mapper, IAuthService authService) : base(httpContext, configuration, mapper, authService)
         {
             _context = context;
         }
@@ -36,8 +38,8 @@ namespace InventoryManagement.Controllers
                 product.CreatedBy,
                 product.ModifiedDate,
                 product.ModifiedBy,
-                CategoryName = product.Category.CategoryName, // Include CategoryName
-                WarehouseName = product.Warehouse.WarehouseName // Include WarehouseName
+                CategoryName = product.Category.CategoryName,
+                WarehouseName = product.Warehouse.WarehouseName
             }).ToDataResult(request);
             return Ok(productsWithDetails);
         }
@@ -50,14 +52,27 @@ namespace InventoryManagement.Controllers
             {
                 return NotFound();
             }
-            var product = await _context.Products.FindAsync(id);
-
+            var product = _context.Products.Select(product => new
+            {
+                product.ProductId,
+                product.ProductName,
+                product.CategoryId,
+                product.QuantityInStock,
+                product.PurchasePrice,
+                product.SalePrice,
+                product.WarehouseId,
+                product.CreatedDate,
+                product.CreatedBy,
+                product.ModifiedDate,
+                product.ModifiedBy,
+                CategoryName = product.Category.CategoryName, // Include CategoryName
+                WarehouseName = product.Warehouse.WarehouseName // Include WarehouseName
+            }).Where(product => product.ProductId == id).FirstOrDefault();
             if (product == null)
             {
                 return NotFound();
             }
-
-            return product;
+            return Ok(product);
         }
 
         // PUT: api/Products/5
