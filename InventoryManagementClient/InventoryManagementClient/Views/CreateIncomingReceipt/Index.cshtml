@@ -1,0 +1,182 @@
+﻿@{
+    ViewBag.Title = "CreateIncomingReceipt";
+    Layout = "_AdminLayout";
+}
+<div class=" m-md-3">
+    <div class="row">
+        <div class="col justify-content-center align-self-center">
+            <h4 class="page-header">Create Incoming Receipt</h4>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="form-group">
+            <label for="supplierSelect">Select Supplier</label>
+            <select class="form-control" id="supplierSelect">
+                <!-- Suppliers will be populated here -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="userSelect">Select User</label>
+            <select class="form-control" id="userSelect">
+                <!-- Users will be populated here -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="productSelect">Select Product</label>
+            <select class="form-control" id="productSelect">
+                <!-- Products will be populated here -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="warehouseSelect">Select Warehouse</label>
+            <select class="form-control" id="warehouseSelect">
+                <!-- Warehouses will be populated here -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" class="form-control" id="quantity" placeholder="Enter Quantity">
+        </div>
+        <div class="form-group">
+            <label for="purchasePrice">Purchase Price</label>
+            <input type="number" class="form-control" id="purchasePrice" placeholder="Enter Purchase Price">
+        </div>
+        <button id="saveIncomingReceipt" class="btn btn-primary">Save Incoming Receipt</button>
+
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(function () {
+        loadSuppliers();
+        loadUsers();
+        loadProducts();
+        loadWarehouses();
+
+        $("#saveIncomingReceipt").click(function () {
+            var supplierId = $("#supplierSelect").val();
+            var userId = userInfo.userId;  // Assuming userInfo contains the authenticated user's details
+            var productId = $("#productSelect").val();
+            var warehouseId = $("#warehouseSelect").val();
+            var quantity = $("#quantity").val();
+            var purchasePrice = $("#purchasePrice").val();
+
+            var requestData = {
+                supplierId: supplierId,
+                warehouseId: warehouseId,
+                createdBy: userId,
+                details: [
+                    {
+                        productId: productId,
+                        quantity: parseFloat(quantity),
+                        purchasePrice: parseFloat(purchasePrice)
+                    }
+                ]
+            };
+            console.log(requestData);
+
+            $.ajax({
+                url: "https://localhost:7161/api/incomingreceipts/add-products",
+                type: "POST",
+                headers: { 'Authorization': `Bearer ${userInfo.token}` },
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(requestData),
+                success: function (response) {
+                    console.log("Success:", response);
+                    // Handle success, show confirmation message or redirect
+                },
+                error: function (error) {
+                    console.log("Error:", error);
+                    window.location.href = "/IncomingReceipt";
+                }
+            });
+        });
+    });
+
+    function loadSuppliers() {
+        $.ajax({
+            url: "https://localhost:7161/api/incomingreceipts/listsuppliers",
+            type: "GET",
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
+            success: function (data) {
+                var select = $("#supplierSelect");
+                select.empty();
+                data.forEach(function (supplier) {
+                    select.append($("<option></option>")
+                        .attr("value", supplier.supplierId)
+                        .text(supplier.supplierName));
+                });
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+
+    function loadUsers() {
+        $.ajax({
+            url: "https://localhost:7161/api/incomingreceipts/listuser",
+            type: "GET",
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
+            success: function (data) {
+                var select = $("#userSelect");
+                select.empty();
+                data.forEach(function (user) {
+                    select.append($("<option></option>")
+                        .attr("value", user.userId)
+                        .text(user.username));
+                });
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+
+    function loadProducts() {
+        $.ajax({
+            url: "https://localhost:7161/api/incomingreceipts/listproduct",
+            type: "GET",
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
+            success: function (data) {
+                var select = $("#productSelect");
+                select.empty();
+                data.forEach(function (product) {
+                    select.append($("<option></option>")
+                        .attr("value", product.productId)
+                        .text(product.productName));
+                });
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+
+    function loadWarehouses() {
+        $.ajax({
+            url: "https://localhost:7161/api/incomingreceipts/listwarehouse",
+            type: "GET",
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
+            success: function (data) {
+                var select = $("#warehouseSelect");
+                select.empty();
+                data.forEach(function (warehouse) {
+                    select.append($("<option></option>")
+                        .attr("value", warehouse.warehouseId)
+                        .text(warehouse.warehouseName));
+                });
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+    
+
+</script>
+

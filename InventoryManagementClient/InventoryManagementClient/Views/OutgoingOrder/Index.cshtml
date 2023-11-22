@@ -2,3 +2,89 @@
     ViewBag.Title = "Customers";
     Layout = "_AdminLayout";
 }
+
+<div class="m-md-3">
+    <div class="row">
+        <div class="col justify-content-center align-self-center">
+            <h4 class="page-header">Outgoing Orders List</h4>
+        </div>
+        <div class="col text-right">
+            <span id="addOutgoingOrder" class="btn-floating peach-gradient" title="Add New Customer"
+                  data-toggle="tooltip">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
+
+    <div class="card card-body">
+        <table id="data-table" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer Name</th>
+                    <th>Warehouse Name</th>
+                    <th>Order Date</th>
+                    <th>Created By</th>
+                    <th>Total Amount</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script>
+    $(function () {
+        getData();
+    });
+
+    function getData() {
+        var token = "your_token_here"; // Thay "your_token_here" bằng token thực tế của bạn
+
+        $.ajax({
+            url: "https://localhost:7161/api/outgoingorders/list",
+            type: "GET",
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
+            success: function (data) {
+                if (data) {
+                    var dataTable = $('#data-table').DataTable({
+                        data: data,
+                        columns: [
+                            { data: 'orderId' },
+                            { data: 'customerName' },
+                            { data: 'warehouseName' },
+                            { data: 'orderDate' },
+                            { data: 'createdBy' },
+                            { data: 'totalAmount' },
+                            {
+                                data: 'details',
+                                render: function (data) {
+                                    var detailsHtml = '<ul>';
+                                    for (var i = 0; i < data.length; i++) {
+                                        var detail = data[i];
+                                        detailsHtml += '<li>Product: ' + detail.productName + ', Quantity: ' + detail.quantity + ', Price: ' + detail.salePrice + '</li>';
+                                    }
+                                    detailsHtml += '</ul>';
+                                    return detailsHtml;
+                                }
+                            }
+                        ],
+                        // Các tùy chọn DataTable khác ở đây
+                    });
+                }
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+
+    $("#addOutgoingOrder").click(function () {
+        window.location.href = "/CreateOutgoingOrder";
+    });
+</script>

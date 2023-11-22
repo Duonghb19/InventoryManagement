@@ -2,44 +2,89 @@
 ViewBag.Title = "Customers";
 Layout = "_AdminLayout";
 }
-<select class="js-data-example-ajax form-control"></select>
-@section Scripts {
+<div class="m-md-3">
+    <div class="row">
+        <div class="col justify-content-center align-self-center">
+            <h4 class="page-header">Incoming Receipts List</h4>
+        </div>
+        <div class="col text-right">
+            <span id="addIncomingReceipt" class="btn-floating peach-gradient" title="Add New Customer"
+                  data-toggle="tooltip">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </span>
+        </div>
+    </div>
+
+    <div class="card card-body">
+        <table id="data-table" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Receipt ID</th>
+                    <th>Supplier Name</th>
+                    <th>Warehouse Name</th>
+                    <th>Receipt Date</th>
+                    <th>Created By</th>
+                    <th>Total Amount</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
 <script>
-    $('.js-data-example-ajax').select2({
-        ajax: {
-            url: `${userInfo.apiUrl}Warehouses/GetWarehouses`,
+    $(function () {
+        getData();
+    });
+    $("#addIncomingReceipt").click(function () {
+        window.location.href = "/CreateIncomingReceipt";
+    });
+    function getData() {
+        $.ajax({
+            url: "https://localhost:7161/api/incomingreceipts/list",
+            type: "GET",
             headers: { 'Authorization': `Bearer ${userInfo.token}` },
-            type: "POST",
-            data: function (params) {
-                let formData = new FormData();
-                formData.append("search.value", params.term || "");
-                formData.append("start", (params.page || 0) * 10);
-                formData.append("length", 10);
-                formData.append("draw", 1);
-                formData.append("columns[0][data]", "WarehouseName");
-                formData.append("columns[0][searchable]", true);
-                return formData;
-            },
-            processResults: function (data) {
-                let results = data.data.reduce((accumulator, currentValue) => {
-                    accumulator.push({
-                        id: currentValue.warehouseId,
-                        text: currentValue.warehouseName
+            success: function (data) {
+                if (data) {
+                    var dataTable = $('#data-table').DataTable({
+                        data: data,
+                        columns: [
+                            { data: 'receiptId' },
+                            { data: 'supplierName' },
+                            { data: 'warehouseName' },
+                            { data: 'receiptDate' },
+                            { data: 'createdBy' },
+                            { data: 'totalAmount' },
+                            {
+                                data: 'details',
+                                render: function (data) {
+                                    var detailsHtml = '<ul>';
+                                    for (var i = 0; i < data.length; i++) {
+                                        var detail = data[i];
+                                        detailsHtml += '<li>Product: ' + detail.productName + ', Quantity: ' + detail.quantity + ', Price: ' + detail.purchasePrice + '</li>';
+                                    }
+                                    detailsHtml += '</ul>';
+                                    return detailsHtml;
+                                }
+                            }
+                        ],
+                        // Other DataTable options here
                     });
-                    return accumulator;
-                }, []);
-                return {
-                    results: results,
-                    pagination: {
-                        more: true
-                    }
-                };
+                }
             },
-            contentType: false,
-            processData: false,
-            cache: true,
-            delay: 250,
-        }
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+
+    $("#addIncomingReceipt").click(function () {
+        window.location.href = "/CreateIncomingReceipt";
     });
 </script>
-}

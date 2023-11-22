@@ -156,7 +156,7 @@ namespace InventoryManagement.Controllers
 
             return NoContent();
         }
-
+        [CustomAuthorize("admin")]
         [HttpGet("list")]
         public IActionResult GetOutgoingOrders()
         {

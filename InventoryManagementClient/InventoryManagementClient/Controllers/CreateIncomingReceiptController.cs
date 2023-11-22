@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryManagementClient.Controllers
 {
-    public class IncomingReceiptController : Controller
+    public class CreateIncomingReceiptController : Controller
     {
         [RoleCheck("all")]
         public IActionResult Index()
