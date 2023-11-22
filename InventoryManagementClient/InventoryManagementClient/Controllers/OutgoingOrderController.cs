@@ -5,6 +5,7 @@ namespace InventoryManagementClient.Controllers
 {
     public class OutgoingOrderController : Controller
     {
+        [RoleCheck("all")]
         public IActionResult Index()
         {
             return View();

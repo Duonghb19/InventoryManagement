@@ -92,7 +92,7 @@ namespace InventoryManagement.Controllers
 
 
 
-
+        [CustomAuthorize("admin")]
         [HttpGet("list")]
         public IActionResult GetIncomingReceipts()
         {
@@ -132,8 +132,79 @@ namespace InventoryManagement.Controllers
                 return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+        [CustomAuthorize("admin")]
+        [HttpGet("listSuppliers")]
+        public IActionResult listSuppliers()
+        {
+            var suppliers = _context.Suppliers.ToList(); // Lấy danh sách Suppliers từ database
 
+            if (suppliers == null || suppliers.Count == 0)
+            {
+                return NotFound("No suppliers available");
+            }
 
+            return Ok(suppliers);
+        }
+        [CustomAuthorize("admin")]
+        [HttpGet("listWarehouse")]
+        public IActionResult ListWarehouse()
+        {
+            var warehouses = _context.Warehouses.ToList(); // Lấy danh sách Warehouses từ database
+
+            if (warehouses == null || warehouses.Count == 0)
+            {
+                return NotFound("No warehouses available");
+            }
+
+            return Ok(warehouses);
+        }
+        [CustomAuthorize("admin")]
+        [HttpGet("listUser")]
+        public IActionResult ListUser()
+        {
+            var users = _context.Users.ToList(); // Retrieve list of users from the database
+
+            if (users == null || users.Count == 0)
+            {
+                return NotFound("No users available");
+            }
+
+            return Ok(users);
+        }
+
+        [CustomAuthorize("admin")]
+        [HttpGet("listProduct")]
+        public IActionResult ListProduct()
+        {
+            var products = _context.Products.ToList(); // Retrieve list of products from the database
+
+            if (products == null || products.Count == 0)
+            {
+                return NotFound("No products available");
+            }
+
+            return Ok(products);
+        }
+        [CustomAuthorize("admin")]
+        [HttpGet("listCustomers")]
+        public IActionResult ListCustomers()
+        {
+            var customers = _context.Customers.ToList();
+            var customerDTOs = customers.Select(customer => new CustomerDTO
+            {
+                CustomerId = customer.CustomerId,
+                CustomerName = customer.CustomerName,
+                ContactPerson = customer.ContactPerson,
+                ContactEmail = customer.ContactEmail,
+                ContactPhone = customer.ContactPhone,
+                CreatedDate = customer.CreatedDate,
+                CreatedBy = customer.CreatedBy,
+                ModifiedDate = customer.ModifiedDate,
+                ModifiedBy = customer.ModifiedBy
+            }).ToList();
+
+            return Ok(customerDTOs);
+        }
 
         // PUT: api/IncomingReceipts/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -165,6 +236,8 @@ namespace InventoryManagement.Controllers
 
             return NoContent();
         }
+
+        
 
         // POST: api/IncomingReceipts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754

@@ -1,0 +1,184 @@
+﻿@{
+    ViewBag.Title = "CreateOutgoingOrder";
+    Layout = "_AdminLayout";
+}
+<div class=" m-md-3">
+    <div class="row">
+        <div class="col justify-content-center align-self-center">
+            <h4 class="page-header">Create Outgoing Order</h4>
+        </div>
+    </div>
+
+    <div class="card-body">
+        <p id="successMessage" style="display: none; color: green;">Outgoing order created successfully.</p>
+        <div class="form-group">
+            <label for="customerSelect">Select Customer</label>
+            <select class="form-control" id="customerSelect">
+                <!-- Customers will be populated here -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="warehouseSelect">Select Warehouse</label>
+            <select class="form-control" id="warehouseSelect">
+                <!-- Warehouses will be populated here -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="userSelect">Select User</label>
+            <select class="form-control" id="userSelect">
+                <!-- Users will be populated here -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="productSelect">Select Product</label>
+            <select class="form-control" id="productSelect">
+                <!-- Products will be populated here -->
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" class="form-control" id="quantity" placeholder="Enter Quantity">
+        </div>
+        <div class="form-group">
+            <label for="salePrice">Sale Price</label>
+            <input type="number" class="form-control" id="salePrice" placeholder="Enter Purchase Price">
+        </div>
+        <button id="saveOutgoingOrder" class="btn btn-primary">Save Incoming Outgoing Order</button>
+
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(function () {
+        loadCustomers();
+        loadUsers();
+        loadProducts();
+        loadWarehouses();
+        $("#saveOutgoingOrder").click(function () {
+            var customerId = $("#customerSelect").val();
+            var warehouseId = $("#warehouseSelect").val();
+            var userId = $("#userSelect").val();
+            var productId = $("#productSelect").val();
+            var quantity = $("#quantity").val();
+            var salePrice = $("#salePrice").val();
+
+            var requestData = {
+                CustomerId: customerId,
+                WarehouseId: warehouseId,
+                CreatedBy: userId, // Replace with the actual user ID
+                ModifiedBy: userId, // Replace with the actual user ID
+                Details: [
+                    {
+                        ProductId: productId,
+                        Quantity: parseFloat(quantity),
+                        SalePrice: parseFloat(salePrice)
+                    }
+                ]
+            };
+            console.log(requestData);
+
+            $.ajax({
+                url: "https://localhost:7161/api/outgoingorders/create-order",
+                type: "POST",
+                headers: { 'Authorization': `Bearer ${userInfo.token}` },
+                dataType: "json",
+                contentType: "application/json",
+                data: JSON.stringify(requestData),
+                success: function (response) {
+                    console.log("Success:", response);
+                    // Show success message
+                    alert("Outgoing order created successfully.");
+
+                        window.location.href = "/OutgoingOrder";
+                    
+                },
+                error: function (error) {
+                    console.log("Error:", error);
+                    // Handle error, show error message or alert
+                }
+            });
+        });
+    });
+    function loadCustomers() {
+        $.ajax({
+            url: "https://localhost:7161/api/incomingreceipts/listcustomers",
+            type: "GET",
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
+            success: function (data) {
+                var select = $("#customerSelect");
+                select.empty();
+                data.forEach(function (customer) {
+                    select.append($("<option></option>")
+                        .attr("value", customer.customerId)
+                        .text(customer.customerName));
+                });
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+
+    function loadUsers() {
+        $.ajax({
+            url: "https://localhost:7161/api/incomingreceipts/listuser",
+            type: "GET",
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
+            success: function (data) {
+                var select = $("#userSelect");
+                select.empty();
+                data.forEach(function (user) {
+                    select.append($("<option></option>")
+                        .attr("value", user.userId)
+                        .text(user.username));
+                });
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+
+    function loadProducts() {
+        $.ajax({
+            url: "https://localhost:7161/api/incomingreceipts/listproduct",
+            type: "GET",
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
+            success: function (data) {
+                var select = $("#productSelect");
+                select.empty();
+                data.forEach(function (product) {
+                    select.append($("<option></option>")
+                        .attr("value", product.productId)
+                        .text(product.productName));
+                });
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+
+    function loadWarehouses() {
+        $.ajax({
+            url: "https://localhost:7161/api/incomingreceipts/listwarehouse",
+            type: "GET",
+            headers: { 'Authorization': `Bearer ${userInfo.token}` },
+            success: function (data) {
+                var select = $("#warehouseSelect");
+                select.empty();
+                data.forEach(function (warehouse) {
+                    select.append($("<option></option>")
+                        .attr("value", warehouse.warehouseId)
+                        .text(warehouse.warehouseName));
+                });
+            },
+            error: function (error) {
+                console.log("Error:", error);
+            }
+        });
+    }
+    
+
+</script>

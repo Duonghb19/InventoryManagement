@@ -21,7 +21,7 @@ namespace InventoryManagement.Controllers
         {
             _context = context;
         }
-
+        
         [HttpPost("[action]")]
         public IActionResult GetSuppliers([FromForm] DataRequest request)
         {

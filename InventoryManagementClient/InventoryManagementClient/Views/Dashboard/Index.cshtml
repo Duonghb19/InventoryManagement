@@ -1,10 +1,7 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "DoashBoard";
+    Layout = "_AdminLayout";
 }
-
-<script src="https://cdn.jsdelivr.net/npm/jquery"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class=" m-md-3">
     <div class="container">
         <h1>Revenue Chart</h1>
@@ -12,11 +9,13 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/jquery"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     $(function () {
         // Gọi API để lấy dữ liệu doanh thu
         $.ajax({
-            url: "https://localhost:7161/api/dashboard/revenue?date=10&month=8&year=2023", // Thay đổi tham số theo ý muốn
+            url: "/api/dashboard/revenue?month=8&year=2023", // Thay đổi tham số theo ý muốn
             type: "GET",
             headers: { 'Authorization': `Bearer ${userInfo.token}` },
             success: function (data) {
